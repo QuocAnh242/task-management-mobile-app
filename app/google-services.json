@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277443708127",
+    "project_id": "taskmanagementapp-qa2412",
+    "storage_bucket": "taskmanagementapp-qa2412.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277443708127:android:acc4db92ce5760f1aa556a",
+        "android_client_info": {
+          "package_name": "com.prm392.taskmanaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9NP4MKYUKIJfsjKGFpNUtusRxrJOCXLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
