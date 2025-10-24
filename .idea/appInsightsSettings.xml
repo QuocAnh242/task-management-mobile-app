@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.prm392.taskmanaapp" />
-                  <option name="mobileSdkAppId" value="1:277443708127:android:acc4db92ce5760f1aa556a" />
-                  <option name="projectId" value="taskmanagementapp-qa2412" />
-                  <option name="projectNumber" value="277443708127" />
+                  <option name="mobileSdkAppId" value="1:811611013219:android:0e67fbc36fc8d815f1b856" />
+                  <option name="projectId" value="chatgroupmanagemm" />
+                  <option name="projectNumber" value="811611013219" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

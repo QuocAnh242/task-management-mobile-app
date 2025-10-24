@@ -1,13 +1,33 @@
 {
   "project_info": {
-    "project_number": "277443708127",
-    "project_id": "taskmanagementapp-qa2412",
-    "storage_bucket": "taskmanagementapp-qa2412.firebasestorage.app"
+    "project_number": "811611013219",
+    "firebase_url": "https://chatgroupmanagemm-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "chatgroupmanagemm",
+    "storage_bucket": "chatgroupmanagemm.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:277443708127:android:acc4db92ce5760f1aa556a",
+        "mobilesdk_app_id": "1:811611013219:android:053501620c841161f1b856",
+        "android_client_info": {
+          "package_name": "com.prm392.pe_su25_prm392_anhthq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_jcSDdOmjSAY57vjBz-hyd9Z6N1R33sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:811611013219:android:0e67fbc36fc8d815f1b856",
         "android_client_info": {
           "package_name": "com.prm392.taskmanaapp"
         }
@@ -15,7 +35,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC9NP4MKYUKIJfsjKGFpNUtusRxrJOCXLg"
+          "current_key": "AIzaSyC_jcSDdOmjSAY57vjBz-hyd9Z6N1R33sE"
         }
       ],
       "services": {
