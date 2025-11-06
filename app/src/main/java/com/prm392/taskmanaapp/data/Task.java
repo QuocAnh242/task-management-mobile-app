@@ -6,7 +6,8 @@ public class Task {
     private String description;
     private String priority; // LOW, MEDIUM, HIGH
     private String status; // TODO, IN_PROGRESS, DONE
-    private int assignedTo;
+    private int projectId; // FK to project
+    private int assignedTo; // FK to user_app
     private String assignedName;
     private String createdAt;
     private String endedAt;
@@ -14,13 +15,14 @@ public class Task {
     public Task() {}
 
     public Task(int taskId, String title, String description, String priority,
-                String status, int assignedTo, String assignedName,
+                String status, int projectId, int assignedTo, String assignedName,
                 String createdAt, String endedAt) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.status = status;
+        this.projectId = projectId;
         this.assignedTo = assignedTo;
         this.assignedName = assignedName;
         this.createdAt = createdAt;
@@ -42,6 +44,9 @@ public class Task {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public int getProjectId() { return projectId; }
+    public void setProjectId(int projectId) { this.projectId = projectId; }
 
     public int getAssignedTo() { return assignedTo; }
     public void setAssignedTo(int assignedTo) { this.assignedTo = assignedTo; }

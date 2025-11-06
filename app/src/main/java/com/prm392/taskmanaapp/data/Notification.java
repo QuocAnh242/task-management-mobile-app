@@ -2,6 +2,7 @@ package com.prm392.taskmanaapp.data;
 
 public class Notification {
     private int notificationId;
+    private int userId; // FK to user_app
     private String title;
     private String content;
     private String status; // READ, UNREAD
@@ -10,9 +11,10 @@ public class Notification {
 
     public Notification() {}
 
-    public Notification(int notificationId, String title, String content,
+    public Notification(int notificationId, int userId, String title, String content,
                         String status, String createdAt, String endedAt) {
         this.notificationId = notificationId;
+        this.userId = userId;
         this.title = title;
         this.content = content;
         this.status = status;
@@ -23,6 +25,9 @@ public class Notification {
     // Getters and Setters
     public int getNotificationId() { return notificationId; }
     public void setNotificationId(int notificationId) { this.notificationId = notificationId; }
+
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

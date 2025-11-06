@@ -6,13 +6,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.prm392.taskmanaapp.R;
-import com.prm392.taskmanaapp.ui.home.HomeActivity; // Assuming you have a HomeActivity
-
+import com.prm392.taskmanaapp.ui.home.HomeActivity;
+import com.prm392.taskmanaapp.ui.register.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity implements LoginContract.View {
 
@@ -42,6 +43,13 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             presenter.login(email, password);
+        });
+
+        // Navigate to RegisterActivity
+        TextView tvRegisterLink = findViewById(R.id.tvRegisterLink);
+        tvRegisterLink.setOnClickListener(v -> {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
         });
     }
 
