@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.prm392.taskmanaapp"
-    compileSdk = 34 // use stable SDK instead of 36 (still preview)
+    compileSdk = 36 // use stable SDK instead of 36 (still preview)
 
     defaultConfig {
         applicationId = "com.prm392.taskmanaapp"
