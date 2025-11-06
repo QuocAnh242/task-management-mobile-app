@@ -3,11 +3,9 @@ package com.prm392.taskmanaapp.ui.register;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +21,6 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
     private EditText etEmail;
     private EditText etPassword;
     private EditText etConfirmPassword;
-    private Spinner spinnerRole;
     private Button btnRegister;
     private ProgressBar progressBar;
 
@@ -39,24 +36,11 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
-        spinnerRole = findViewById(R.id.spinnerRole);
         btnRegister = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
 
         // Create the Presenter
         presenter = new RegisterPresenter(this);
-
-        // Populate role spinner - Remove ADMIN and MANAGER from registration (only for test accounts)
-        ArrayAdapter<CharSequence> roleAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.user_roles,
-                android.R.layout.simple_spinner_item
-        );
-        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerRole.setAdapter(roleAdapter);
-        
-        // Set default selection to MEMBER (index 0)
-        spinnerRole.setSelection(0);
 
         // Navigate to login
         TextView tvLoginLink = findViewById(R.id.tvLoginLink);
@@ -72,7 +56,6 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String confirmPassword = etConfirmPassword.getText().toString().trim();
-            String role = spinnerRole.getSelectedItem().toString();
 
             // Validate inputs
             if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -85,12 +68,8 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
                 return;
             }
 
-            // Default role to MEMBER for new registrations
-            // ADMIN and MANAGER should only be created as test accounts
-            if (role.equals("ADMIN") || role.equals("MANAGER")) {
-                Toast.makeText(this, "ADMIN and MANAGER roles are restricted. Defaulting to MEMBER.", Toast.LENGTH_LONG).show();
-                role = "MEMBER";
-            }
+            // Default role to MEMBER for all new registrations
+            String role = "MEMBER";
 
             presenter.register(name, email, password, role);
         });

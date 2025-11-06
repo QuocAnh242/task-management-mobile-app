@@ -1,21 +1,21 @@
 package com.prm392.taskmanaapp.data;
 
 public class Task {
-    private int taskId;
+    private String taskId;
     private String title;
     private String description;
     private String priority; // LOW, MEDIUM, HIGH
     private String status; // TODO, IN_PROGRESS, DONE
-    private int projectId; // FK to project
-    private int assignedTo; // FK to user_app
+    private String projectId; // Firebase project ID
+    private String assignedTo; // Firebase UID of assigned user
     private String assignedName;
     private String createdAt;
     private String endedAt;
 
     public Task() {}
 
-    public Task(int taskId, String title, String description, String priority,
-                String status, int projectId, int assignedTo, String assignedName,
+    public Task(String taskId, String title, String description, String priority,
+                String status, String projectId, String assignedTo, String assignedName,
                 String createdAt, String endedAt) {
         this.taskId = taskId;
         this.title = title;
@@ -30,8 +30,8 @@ public class Task {
     }
 
     // Getters and Setters
-    public int getTaskId() { return taskId; }
-    public void setTaskId(int taskId) { this.taskId = taskId; }
+    public String getTaskId() { return taskId; }
+    public void setTaskId(String taskId) { this.taskId = taskId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -45,11 +45,11 @@ public class Task {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public int getProjectId() { return projectId; }
-    public void setProjectId(int projectId) { this.projectId = projectId; }
+    public String getProjectId() { return projectId; }
+    public void setProjectId(String projectId) { this.projectId = projectId; }
 
-    public int getAssignedTo() { return assignedTo; }
-    public void setAssignedTo(int assignedTo) { this.assignedTo = assignedTo; }
+    public String getAssignedTo() { return assignedTo; }
+    public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
 
     public String getAssignedName() { return assignedName; }
     public void setAssignedName(String assignedName) { this.assignedName = assignedName; }

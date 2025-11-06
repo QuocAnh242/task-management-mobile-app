@@ -170,23 +170,6 @@
                             android:paddingEnd="12dp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Role Spinner -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Role"
-                        android:textColor="#2C3E50"
-                        android:textSize="14sp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="8dp" />
-
-                    <Spinner
-                        android:id="@+id/spinnerRole"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp" />
-
                     <Button
                         android:id="@+id/btnRegister"
                         android:layout_width="match_parent"

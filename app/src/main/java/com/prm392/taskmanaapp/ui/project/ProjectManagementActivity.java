@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -12,21 +13,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.prm392.taskmanaapp.R;
 import com.prm392.taskmanaapp.data.Project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class ProjectManagementActivity extends AppCompatActivity {
+public class ProjectManagementActivity extends AppCompatActivity implements ProjectContract.View {
 
     private RecyclerView rvProjects;
     private Button btnCreateProject;
+    private ProgressBar progressBar;
+    private ProjectAdapter projectAdapter;
     private List<Project> projectList;
-    // TODO: Create ProjectAdapter
-    // private ProjectAdapter projectAdapter;
+    private ProjectContract.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +37,13 @@ public class ProjectManagementActivity extends AppCompatActivity {
         // Initialize views
         rvProjects = findViewById(R.id.rvProjects);
         btnCreateProject = findViewById(R.id.btnCreateProject);
+        progressBar = findViewById(R.id.progressBar);
 
         // Initialize project list
         projectList = new ArrayList<>();
+
+        // Create presenter
+        presenter = new ProjectPresenter(this);
 
         // Setup RecyclerView
         setupProjectsRecyclerView();
@@ -47,19 +52,28 @@ public class ProjectManagementActivity extends AppCompatActivity {
         btnCreateProject.setOnClickListener(v -> showCreateProjectDialog());
 
         // Load projects
-        loadProjects();
+        presenter.loadProjects();
     }
 
     private void setupProjectsRecyclerView() {
         rvProjects.setLayoutManager(new LinearLayoutManager(this));
-        // TODO: Create and set ProjectAdapter
-        // projectAdapter = new ProjectAdapter(projectList, this);
-        // rvProjects.setAdapter(projectAdapter);
-    }
+        projectAdapter = new ProjectAdapter(projectList, new ProjectAdapter.OnProjectClickListener() {
+            @Override
+            public void onProjectClick(Project project) {
+                openProject(project);
+            }
 
-    private void loadProjects() {
-        // TODO: Load projects from database
-        // This is a placeholder
+            @Override
+            public void onProjectLongClick(Project project) {
+                showManageProjectDialog(project);
+            }
+
+            @Override
+            public void onInviteUserClick(Project project) {
+                showInviteUserDialog(project.getProjectId());
+            }
+        });
+        rvProjects.setAdapter(projectAdapter);
     }
 
     private void showCreateProjectDialog() {
@@ -80,34 +94,12 @@ public class ProjectManagementActivity extends AppCompatActivity {
                         return;
                     }
 
-                    createProject(title, description);
+                    presenter.createProject(title, description);
                 })
                 .setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    private void createProject(String title, String description) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // TODO: Create project in database
-        // For now, create a local project object
-        Project project = new Project();
-        project.setTitle(title);
-        project.setDescription(description);
-        // TODO: Set leaderId from current user
-        // project.setLeaderId(currentUser.getUid());
-
-        // Add to list and notify adapter
-        projectList.add(project);
-        // projectAdapter.notifyDataSetChanged();
-
-        Toast.makeText(this, "Project created successfully", Toast.LENGTH_SHORT).show();
     }
 
     public void showManageProjectDialog(Project project) {
@@ -127,7 +119,7 @@ public class ProjectManagementActivity extends AppCompatActivity {
                     String title = etProjectTitle.getText().toString().trim();
                     String description = etProjectDescription.getText().toString().trim();
 
-                    updateProject(project, title, description);
+                    presenter.updateProject(project, title, description);
                 })
                 .setNeutralButton("Delete", (dialog, which) -> {
                     deleteProject(project);
@@ -138,28 +130,12 @@ public class ProjectManagementActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void updateProject(Project project, String title, String description) {
-        // Update project properties
-        project.setTitle(title);
-        project.setDescription(description);
-
-        // TODO: Update project in database
-
-        // Notify adapter
-        // projectAdapter.notifyDataSetChanged();
-
-        Toast.makeText(this, "Project updated successfully", Toast.LENGTH_SHORT).show();
-    }
-
     private void deleteProject(Project project) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Project")
                 .setMessage("Are you sure you want to delete this project? All tasks in this project will also be deleted.")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    // TODO: Delete project from database
-                    projectList.remove(project);
-                    // projectAdapter.notifyDataSetChanged();
-                    Toast.makeText(this, "Project deleted successfully", Toast.LENGTH_SHORT).show();
+                    presenter.deleteProject(project);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -171,5 +147,87 @@ public class ProjectManagementActivity extends AppCompatActivity {
         intent.putExtra("project_title", project.getTitle());
         startActivity(intent);
     }
-}
 
+    public void showInviteUserDialog(String projectId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_invite_user, null);
+        builder.setView(dialogView);
+
+        EditText etUserEmail = dialogView.findViewById(R.id.etUserEmail);
+
+        builder.setTitle("Invite User to Project")
+                .setPositiveButton("Invite", (dialog, which) -> {
+                    String email = etUserEmail.getText().toString().trim();
+                    if (email.isEmpty()) {
+                        Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    presenter.inviteUserToProject(projectId, email);
+                })
+                .setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void showLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+        btnCreateProject.setEnabled(false);
+    }
+
+    @Override
+    public void hideLoading() {
+        progressBar.setVisibility(View.GONE);
+        btnCreateProject.setEnabled(true);
+    }
+
+    @Override
+    public void showProjects(List<Project> projects) {
+        projectList.clear();
+        projectList.addAll(projects);
+        projectAdapter.updateProjects(projectList);
+    }
+
+    @Override
+    public void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onProjectCreated(Project project) {
+        Toast.makeText(this, "Project created successfully", Toast.LENGTH_SHORT).show();
+        presenter.loadProjects(); // Reload projects
+    }
+
+    @Override
+    public void onProjectUpdated() {
+        Toast.makeText(this, "Project updated successfully", Toast.LENGTH_SHORT).show();
+        presenter.loadProjects(); // Reload projects
+    }
+
+    @Override
+    public void onProjectDeleted() {
+        Toast.makeText(this, "Project deleted successfully", Toast.LENGTH_SHORT).show();
+        presenter.loadProjects(); // Reload projects
+    }
+
+    @Override
+    public void onUserInvited() {
+        Toast.makeText(this, "User invited successfully", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showUsersForInvite(List<Map<String, String>> users) {
+        // This can be used to show a list of users to invite
+        // For now, we use email input dialog
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (presenter != null) {
+            presenter.onDestroy();
+        }
+    }
+}
