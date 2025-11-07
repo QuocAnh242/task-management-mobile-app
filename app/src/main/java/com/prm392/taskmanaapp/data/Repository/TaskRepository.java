@@ -182,22 +182,54 @@ public class TaskRepository {
                 .addOnFailureListener(e -> listener.onError("Failed to delete task: " + e.getMessage()));
     }
 
-    public void assignTaskToUser(String taskId, String userId, OnTaskUpdatedListener listener) {
-        // Get user name
+    public void assignTaskToUser(String taskId, String userId, String projectId, OnTaskUpdatedListener listener) {
+        // Get user name and task info
         db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(userDoc -> {
                     String userName = userDoc.getString("name");
                     if (userName == null) userName = userDoc.getString("email");
+                    final String finalUserName = userName != null ? userName : "";
 
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("assignedTo", userId);
-                    updates.put("assignedName", userName != null ? userName : "");
-
+                    // Get task info for notification
                     db.collection("tasks").document(taskId)
-                            .update(updates)
-                            .addOnSuccessListener(aVoid -> listener.onSuccess())
-                            .addOnFailureListener(e -> listener.onError("Failed to assign task: " + e.getMessage()));
+                            .get()
+                            .addOnSuccessListener(taskDoc -> {
+                                String taskTitle = taskDoc.getString("title");
+                                String taskTitleFinal = taskTitle != null ? taskTitle : "Task";
+
+                                Map<String, Object> updates = new HashMap<>();
+                                updates.put("assignedTo", userId);
+                                updates.put("assignedName", finalUserName);
+
+                                db.collection("tasks").document(taskId)
+                                        .update(updates)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Create notification for assigned user
+                                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                                            if (currentUser != null && !userId.equals(currentUser.getUid())) {
+                                                String assignerName = currentUser.getDisplayName();
+                                                if (assignerName == null || assignerName.isEmpty()) {
+                                                    assignerName = currentUser.getEmail();
+                                                }
+
+                                                Map<String, Object> notificationData = new HashMap<>();
+                                                notificationData.put("userId", userId);
+                                                notificationData.put("projectId", projectId != null ? projectId : "");
+                                                notificationData.put("title", "Bạn được giao công việc mới");
+                                                notificationData.put("content", assignerName + " đã giao cho bạn công việc: " + taskTitleFinal);
+                                                notificationData.put("status", "UNREAD");
+                                                notificationData.put("type", "TASK_ASSIGNED");
+                                                String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                                                notificationData.put("createdAt", createdAt);
+
+                                                db.collection("notifications").add(notificationData);
+                                            }
+                                            listener.onSuccess();
+                                        })
+                                        .addOnFailureListener(e -> listener.onError("Failed to assign task: " + e.getMessage()));
+                            })
+                            .addOnFailureListener(e -> listener.onError("Failed to get task: " + e.getMessage()));
                 })
                 .addOnFailureListener(e -> listener.onError("Failed to get user data: " + e.getMessage()));
     }

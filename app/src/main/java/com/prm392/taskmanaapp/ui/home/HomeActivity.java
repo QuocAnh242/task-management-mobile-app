@@ -3,6 +3,7 @@ package com.prm392.taskmanaapp.ui.home;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -44,9 +45,12 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvNoTasks;
     private TextView tvNoNotifications;
     private TextView tvNotificationCount;
-    private FloatingActionButton fabManageProjects;
-    private ImageButton btnLogout;
+    private TextView tvProjectCount;
+    private TextView tvTaskCount;
+    private Button fabManageProjects;
+    private Button btnLogout;
     private ProgressBar progressBar;
+    private com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigation;
 
     private ProjectAdapter projectAdapter;
     private TaskAdapter taskAdapter;
@@ -99,9 +103,19 @@ public class HomeActivity extends AppCompatActivity {
         tvNoTasks = findViewById(R.id.tvNoTasks);
         tvNoNotifications = findViewById(R.id.tvNoNotifications);
         tvNotificationCount = findViewById(R.id.tvNotificationCount);
+        tvProjectCount = findViewById(R.id.tvProjectCount);
+        tvTaskCount = findViewById(R.id.tvTaskCount);
         fabManageProjects = findViewById(R.id.fabManageProjects);
         btnLogout = findViewById(R.id.btnLogout);
         progressBar = findViewById(R.id.progressBar);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        
+        // Disable bottom navigation (UI only)
+        if (bottomNavigation != null) {
+            bottomNavigation.setEnabled(false);
+            bottomNavigation.setClickable(false);
+            bottomNavigation.setFocusable(false);
+        }
     }
 
     private void setupRecyclerViews() {
@@ -205,6 +219,10 @@ public class HomeActivity extends AppCompatActivity {
                     rvProjects.setVisibility(View.VISIBLE);
                     projectAdapter.updateProjects(projects);
                 }
+                // Update stats
+                if (tvProjectCount != null) {
+                    tvProjectCount.setText(String.valueOf(projects.size()));
+                }
             }
 
             @Override
@@ -278,6 +296,10 @@ public class HomeActivity extends AppCompatActivity {
             rvTasks.setVisibility(View.VISIBLE);
             taskAdapter.updateTasks(tasks);
         }
+        // Update stats
+        if (tvTaskCount != null) {
+            tvTaskCount.setText(String.valueOf(tasks.size()));
+        }
     }
 
     private void loadNotifications() {
@@ -293,18 +315,9 @@ public class HomeActivity extends AppCompatActivity {
                     rvNotifications.setVisibility(View.VISIBLE);
                     notificationAdapter.updateNotifications(notifications);
 
-                    // Count unread notifications
-                    int unreadCount = 0;
-                    for (Notification notification : notifications) {
-                        if ("UNREAD".equals(notification.getStatus())) {
-                            unreadCount++;
-                        }
-                    }
-                    if (unreadCount > 0) {
-                        tvNotificationCount.setText(String.valueOf(unreadCount));
-                        tvNotificationCount.setVisibility(View.VISIBLE);
-                    } else {
-                        tvNotificationCount.setVisibility(View.GONE);
+                    // Update stats
+                    if (tvNotificationCount != null) {
+                        tvNotificationCount.setText(String.valueOf(notifications.size()));
                     }
                 }
             }

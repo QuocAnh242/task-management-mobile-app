@@ -275,50 +275,48 @@ public class ProjectRepository {
                                     memberIds = new ArrayList<>();
                                 }
 
+                                // Check if user is already a member
                                 if (memberIds.contains(userId)) {
                                     listener.onError("User is already a member of this project");
                                     return;
                                 }
 
-                                memberIds.add(userId);
+                                // Check if user already has a pending invite
+                                // (We'll just create notification, user will be added only after accepting)
                                 String projectTitle = projectDoc.getString("title");
                                 String projectTitleFinal = projectTitle != null ? projectTitle : "Project";
                                 
-                                db.collection("projects").document(projectId)
-                                        .update("memberIds", memberIds)
-                                        .addOnSuccessListener(aVoid -> {
-                                            // Create notification for invited user
-                                            String invitedUserName = userDoc.getString("name");
-                                            if (invitedUserName == null) {
-                                                invitedUserName = userDoc.getString("email");
-                                            }
-                                            String notificationTitle = "Bạn đã được mời vào dự án";
-                                            String notificationContent = currentUser.getDisplayName() != null 
-                                                    ? currentUser.getDisplayName() 
-                                                    : currentUser.getEmail() + " đã mời bạn tham gia dự án: " + projectTitleFinal;
-                                            
-                                            // Create notification
-                                            Map<String, Object> notificationData = new HashMap<>();
-                                            notificationData.put("userId", userId);
-                                            notificationData.put("projectId", projectId);
-                                            notificationData.put("title", notificationTitle);
-                                            notificationData.put("content", notificationContent);
-                                            notificationData.put("status", "UNREAD");
-                                            notificationData.put("type", "PROJECT_INVITE");
-                                            String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-                                            notificationData.put("createdAt", createdAt);
-                                            
-                                            db.collection("notifications")
-                                                    .add(notificationData)
-                                                    .addOnSuccessListener(documentReference -> {
-                                                        listener.onSuccess();
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        // Notification failed but invitation succeeded
-                                                        listener.onSuccess();
-                                                    });
+                                // Create notification for invited user (DO NOT add to memberIds yet)
+                                String invitedUserName = userDoc.getString("name");
+                                if (invitedUserName == null) {
+                                    invitedUserName = userDoc.getString("email");
+                                }
+                                String notificationTitle = "Bạn đã được mời vào dự án";
+                                String inviterName = currentUser.getDisplayName();
+                                if (inviterName == null || inviterName.isEmpty()) {
+                                    inviterName = currentUser.getEmail();
+                                }
+                                String notificationContent = inviterName + " đã mời bạn tham gia dự án: " + projectTitleFinal;
+                                
+                                // Create notification
+                                Map<String, Object> notificationData = new HashMap<>();
+                                notificationData.put("userId", userId);
+                                notificationData.put("projectId", projectId);
+                                notificationData.put("title", notificationTitle);
+                                notificationData.put("content", notificationContent);
+                                notificationData.put("status", "UNREAD");
+                                notificationData.put("type", "PROJECT_INVITE");
+                                String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                                notificationData.put("createdAt", createdAt);
+                                
+                                db.collection("notifications")
+                                        .add(notificationData)
+                                        .addOnSuccessListener(documentReference -> {
+                                            listener.onSuccess();
                                         })
-                                        .addOnFailureListener(e -> listener.onError("Failed to invite user: " + e.getMessage()));
+                                        .addOnFailureListener(e -> {
+                                            listener.onError("Failed to send invitation: " + e.getMessage());
+                                        });
                             })
                             .addOnFailureListener(e -> listener.onError("Failed to get project: " + e.getMessage()));
                 })
@@ -438,6 +436,51 @@ public class ProjectRepository {
         // For decline, we just need to mark notification as read
         // The user won't be added to the project
         listener.onSuccess();
+    }
+
+    /**
+     * Remove member from project (Only leader can do this)
+     */
+    public void removeMember(String projectId, String memberId, OnProjectUpdatedListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        // Verify user is the leader
+        db.collection("projects").document(projectId)
+                .get()
+                .addOnSuccessListener(projectDoc -> {
+                    if (!projectDoc.exists()) {
+                        listener.onError("Project not found");
+                        return;
+                    }
+
+                    String leaderId = projectDoc.getString("leaderId");
+                    if (!currentUser.getUid().equals(leaderId)) {
+                        listener.onError("Only project leader can remove members");
+                        return;
+                    }
+
+                    List<String> memberIds = (List<String>) projectDoc.get("memberIds");
+                    if (memberIds == null) {
+                        memberIds = new ArrayList<>();
+                    }
+
+                    if (!memberIds.contains(memberId)) {
+                        listener.onError("User is not a member of this project");
+                        return;
+                    }
+
+                    memberIds.remove(memberId);
+
+                    db.collection("projects").document(projectId)
+                            .update("memberIds", memberIds)
+                            .addOnSuccessListener(aVoid -> listener.onSuccess())
+                            .addOnFailureListener(e -> listener.onError("Failed to remove member: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> listener.onError("Failed to get project: " + e.getMessage()));
     }
 }
 

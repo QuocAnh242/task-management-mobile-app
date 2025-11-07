@@ -118,11 +118,11 @@ public class TaskPresenter implements TaskContract.Presenter {
     }
 
     @Override
-    public void assignTaskToUser(String taskId, String userId) {
+    public void assignTaskToUser(String taskId, String userId, String projectId) {
         if (view != null) {
             view.showLoading();
         }
-        repository.assignTaskToUser(taskId, userId, new TaskRepository.OnTaskUpdatedListener() {
+        repository.assignTaskToUser(taskId, userId, projectId, new TaskRepository.OnTaskUpdatedListener() {
             @Override
             public void onSuccess() {
                 if (view != null) {

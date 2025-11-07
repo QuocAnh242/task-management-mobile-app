@@ -78,9 +78,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
         
         if (task.getAssignedName() != null && !task.getAssignedName().isEmpty()) {
-            holder.tvAssignedTo.setText("Giao cho: " + task.getAssignedName());
+            holder.tvAssignedTo.setText("👤 " + task.getAssignedName());
         } else {
-            holder.tvAssignedTo.setText("Chưa giao cho ai");
+            holder.tvAssignedTo.setText("👤 Chưa giao");
         }
     }
 

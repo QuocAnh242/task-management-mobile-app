@@ -22,7 +22,7 @@ public interface TaskContract {
         void createTask(String projectId, String title, String description, String priority, String status, String assignedToUserId);
         void updateTask(Task task, String title, String description, String priority, String status, String assignedToUserId);
         void deleteTask(Task task);
-        void assignTaskToUser(String taskId, String userId);
+        void assignTaskToUser(String taskId, String userId, String projectId);
         void loadUsersForAssignment(String projectId);
         void onDestroy();
     }

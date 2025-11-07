@@ -7,235 +7,357 @@
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
-    <!-- App Bar with Logout -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:elevation="0dp">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/header_gradient"
-            android:padding="16dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp">
-
-            <TextView
-                android:id="@+id/tvWelcome"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Xin chào!"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btnLogout" />
-
-            <ImageButton
-                android:id="@+id/btnLogout"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:contentDescription="Logout"
-                app:tint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
     <!-- Main Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Projects Section -->
-            <androidx.cardview.widget.CardView
+            <!-- Welcome Banner -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/background_card">
+                android:orientation="vertical"
+                android:background="@drawable/header_gradient"
+                android:padding="20dp"
+                android:paddingTop="60dp"
+                android:paddingBottom="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/tvProjectsTitle"
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Dự án của tôi"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvProjects"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
+                        <TextView
+                            android:id="@+id/tvWelcome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Welcome back!"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:letterSpacing="0.02" />
 
-                    <TextView
-                        android:id="@+id/tvNoProjects"
-                        android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Manage your projects and tasks"
+                            android:textSize="14sp"
+                            android:textColor="@color/white"
+                            android:alpha="0.85" />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnLogout"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Chưa có dự án nào"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_hint"
-                        android:gravity="center"
-                        android:padding="16dp"
-                        android:visibility="gone" />
+                        android:text="Logout"
+                        android:textSize="13sp"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@android:color/transparent"
+                        app:cornerRadius="8dp" />
 
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- Tasks Section -->
-            <androidx.cardview.widget.CardView
+            </LinearLayout>
+
+            <!-- Content -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/background_card">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <LinearLayout
+                <!-- Quick Stats Card -->
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvTasksTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Công việc của tôi"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginBottom="12dp" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvTasks"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
-
-                    <TextView
-                        android:id="@+id/tvNoTasks"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Chưa có công việc nào"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_hint"
-                        android:gravity="center"
-                        android:padding="16dp"
-                        android:visibility="gone" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Notifications Section -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/background_card">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="@color/background_card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:padding="20dp">
 
-                        <TextView
-                            android:id="@+id/tvNotificationsTitle"
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Thông báo"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tvProjectCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/primary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Projects"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/background_light"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tvTaskCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/status_in_progress" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tasks"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/background_light"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tvNotificationCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/project_color_4" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Notifications"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Projects Section -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="@color/background_card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="My Projects"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/text_primary" />
+
+                            <Button
+                                android:id="@+id/fabManageProjects"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Manage"
+                                android:textSize="13sp"
+                                android:textColor="@color/primary"
+                                android:backgroundTint="@android:color/transparent"
+                                app:cornerRadius="8dp" />
+
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvProjects"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
 
                         <TextView
-                            android:id="@+id/tvNotificationCount"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvNoProjects"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/badge_background"
-                            android:text="0"
-                            android:textColor="@color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:minWidth="24dp"
-                            android:minHeight="24dp"
+                            android:text="No projects yet"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint"
                             android:gravity="center"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
+                            android:padding="24dp"
                             android:visibility="gone" />
 
                     </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvNotifications"
+                <!-- Tasks Section -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="@color/background_card">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                    <TextView
-                        android:id="@+id/tvNoNotifications"
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="My Tasks"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="16dp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvTasks"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
+
+                        <TextView
+                            android:id="@+id/tvNoTasks"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="No tasks yet"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint"
+                            android:gravity="center"
+                            android:padding="24dp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Notifications Section -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="80dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="@color/background_card">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Không có thông báo nào"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_hint"
-                        android:gravity="center"
-                        android:padding="16dp"
-                        android:visibility="gone" />
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Notifications"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="16dp" />
 
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvNotifications"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
+
+                        <TextView
+                            android:id="@+id/tvNoNotifications"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="No notifications"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_hint"
+                            android:gravity="center"
+                            android:padding="24dp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Floating Action Button for Quick Actions -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabManageProjects"
-        android:layout_width="wrap_content"
+    <!-- Bottom Navigation (UI Only - Not Functional) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_manage"
-        android:contentDescription="Quản lý dự án"
-        app:layout_anchor="@id/rvProjects"
-        app:layout_anchorGravity="bottom|end"
-        app:tint="@color/white" />
+        android:background="@color/background_card"
+        app:itemTextColor="@color/text_secondary"
+        app:itemIconTint="@color/text_secondary"
+        app:menu="@menu/bottom_navigation"
+        app:layout_anchorGravity="bottom"
+        android:clickable="false"
+        android:focusable="false" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -243,7 +365,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_anchor="@id/fabManageProjects"
+        app:layout_anchor="@id/bottomNavigation"
         app:layout_anchorGravity="center" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

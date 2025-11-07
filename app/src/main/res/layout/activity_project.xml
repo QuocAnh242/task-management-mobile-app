@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
-    <!-- App Bar with Back Button -->
+    <!-- Modern Header -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,17 +19,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/header_gradient"
-            android:padding="16dp"
-            android:paddingTop="24dp"
+            android:padding="20dp"
+            android:paddingTop="32dp"
             android:paddingBottom="24dp">
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
-                android:contentDescription="Quay lại"
+                android:contentDescription="Back"
                 app:tint="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -50,21 +50,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Project Title"
-                    android:textSize="24sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:maxLines="2"
-                    android:ellipsize="end" />
+                    android:ellipsize="end"
+                    android:letterSpacing="0.02" />
 
                 <TextView
                     android:id="@+id/tvProjectDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:text="Project Description"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textColor="@color/white"
-                    android:alpha="0.9"
+                    android:alpha="0.85"
                     android:maxLines="2"
                     android:ellipsize="end" />
 
@@ -85,24 +86,183 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Create Task Button Card -->
+            <!-- Project Overview Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
                 app:cardBackgroundColor="@color/background_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Overview"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <!-- Admin Actions -->
+                        <Button
+                            android:id="@+id/btnEditProject"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Edit"
+                            android:textSize="13sp"
+                            android:textColor="@color/primary"
+                            android:backgroundTint="@android:color/transparent"
+                            android:visibility="gone"
+                            app:cornerRadius="8dp" />
+
+                        <Button
+                            android:id="@+id/btnDeleteProject"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Delete"
+                            android:textSize="13sp"
+                            android:textColor="@color/project_color_2"
+                            android:backgroundTint="@android:color/transparent"
+                            android:layout_marginStart="8dp"
+                            android:visibility="gone"
+                            app:cornerRadius="8dp" />
+
+                    </LinearLayout>
+
+                    <!-- Leader Info -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/background_light"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Leader"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tvProjectLeader"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Loading..."
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                    </LinearLayout>
+
+                    <!-- Members Info -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/background_light"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Members"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tvMemberCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <Button
+                            android:id="@+id/btnAddMember"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:text="+ Add"
+                            android:textSize="12sp"
+                            android:textColor="@color/primary"
+                            android:backgroundTint="@android:color/transparent"
+                            android:layout_marginStart="12dp"
+                            android:visibility="gone"
+                            app:cornerRadius="6dp" />
+
+                    </LinearLayout>
+
+                    <!-- Members List -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvMembers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvNoMembers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No members yet"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_hint"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Create Task Button (Admin Only) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCreateTask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="@color/primary">
 
                 <Button
                     android:id="@+id/btnCreateTask"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="➕ Tạo công việc mới"
+                    android:text="Create New Task"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:backgroundTint="@color/primary"
-                    app:cornerRadius="8dp" />
+                    android:textColor="@color/white"
+                    android:backgroundTint="@android:color/transparent"
+                    app:cornerRadius="0dp" />
 
             </androidx.cardview.widget.CardView>
 
@@ -110,24 +270,24 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
                 app:cardBackgroundColor="@color/background_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Bảng công việc"
+                        android:text="Tasks"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="20dp" />
 
                     <!-- Kanban ScrollView -->
                     <HorizontalScrollView
@@ -148,52 +308,47 @@
                                 android:layout_width="320dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="12dp"
-                                app:cardCornerRadius="8dp"
-                                app:cardElevation="1dp"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp"
                                 app:cardBackgroundColor="#F8F9FA">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="14dp">
 
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:orientation="horizontal"
                                         android:gravity="center_vertical"
-                                        android:layout_marginBottom="12dp">
+                                        android:layout_marginBottom="14dp">
 
                                         <View
-                                            android:layout_width="4dp"
-                                            android:layout_height="20dp"
+                                            android:layout_width="3dp"
+                                            android:layout_height="18dp"
                                             android:background="@color/status_todo"
-                                            android:layout_marginEnd="8dp" />
+                                            android:layout_marginEnd="10dp" />
 
                                         <TextView
                                             android:layout_width="0dp"
                                             android:layout_height="wrap_content"
                                             android:layout_weight="1"
-                                            android:text="TODO"
-                                            android:textSize="16sp"
+                                            android:text="To Do"
+                                            android:textSize="15sp"
                                             android:textStyle="bold"
                                             android:textColor="@color/text_primary" />
 
                                         <TextView
                                             android:id="@+id/tvTodoCount"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
                                             android:text="0"
-                                            android:textSize="14sp"
-                                            android:textColor="@color/white"
+                                            android:textSize="12sp"
+                                            android:textColor="@color/text_hint"
                                             android:background="@drawable/badge_background"
-                                            android:backgroundTint="@color/status_todo"
-                                            android:paddingStart="8dp"
-                                            android:paddingEnd="8dp"
-                                            android:paddingTop="2dp"
-                                            android:paddingBottom="2dp"
-                                            android:minWidth="24dp"
+                                            android:backgroundTint="#E0E0E0"
                                             android:gravity="center" />
 
                                     </LinearLayout>
@@ -213,52 +368,47 @@
                                 android:layout_width="320dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="12dp"
-                                app:cardCornerRadius="8dp"
-                                app:cardElevation="1dp"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp"
                                 app:cardBackgroundColor="#F8F9FA">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="14dp">
 
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:orientation="horizontal"
                                         android:gravity="center_vertical"
-                                        android:layout_marginBottom="12dp">
+                                        android:layout_marginBottom="14dp">
 
                                         <View
-                                            android:layout_width="4dp"
-                                            android:layout_height="20dp"
+                                            android:layout_width="3dp"
+                                            android:layout_height="18dp"
                                             android:background="@color/status_in_progress"
-                                            android:layout_marginEnd="8dp" />
+                                            android:layout_marginEnd="10dp" />
 
                                         <TextView
                                             android:layout_width="0dp"
                                             android:layout_height="wrap_content"
                                             android:layout_weight="1"
-                                            android:text="IN PROGRESS"
-                                            android:textSize="16sp"
+                                            android:text="In Progress"
+                                            android:textSize="15sp"
                                             android:textStyle="bold"
                                             android:textColor="@color/text_primary" />
 
                                         <TextView
                                             android:id="@+id/tvInProgressCount"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
                                             android:text="0"
-                                            android:textSize="14sp"
-                                            android:textColor="@color/white"
+                                            android:textSize="12sp"
+                                            android:textColor="@color/text_hint"
                                             android:background="@drawable/badge_background"
-                                            android:backgroundTint="@color/status_in_progress"
-                                            android:paddingStart="8dp"
-                                            android:paddingEnd="8dp"
-                                            android:paddingTop="2dp"
-                                            android:paddingBottom="2dp"
-                                            android:minWidth="24dp"
+                                            android:backgroundTint="#E0E0E0"
                                             android:gravity="center" />
 
                                     </LinearLayout>
@@ -277,52 +427,47 @@
                             <androidx.cardview.widget.CardView
                                 android:layout_width="320dp"
                                 android:layout_height="wrap_content"
-                                app:cardCornerRadius="8dp"
-                                app:cardElevation="1dp"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp"
                                 app:cardBackgroundColor="#F8F9FA">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="14dp">
 
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:orientation="horizontal"
                                         android:gravity="center_vertical"
-                                        android:layout_marginBottom="12dp">
+                                        android:layout_marginBottom="14dp">
 
                                         <View
-                                            android:layout_width="4dp"
-                                            android:layout_height="20dp"
+                                            android:layout_width="3dp"
+                                            android:layout_height="18dp"
                                             android:background="@color/status_done"
-                                            android:layout_marginEnd="8dp" />
+                                            android:layout_marginEnd="10dp" />
 
                                         <TextView
                                             android:layout_width="0dp"
                                             android:layout_height="wrap_content"
                                             android:layout_weight="1"
-                                            android:text="DONE"
-                                            android:textSize="16sp"
+                                            android:text="Done"
+                                            android:textSize="15sp"
                                             android:textStyle="bold"
                                             android:textColor="@color/text_primary" />
 
                                         <TextView
                                             android:id="@+id/tvDoneCount"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
                                             android:text="0"
-                                            android:textSize="14sp"
-                                            android:textColor="@color/white"
+                                            android:textSize="12sp"
+                                            android:textColor="@color/text_hint"
                                             android:background="@drawable/badge_background"
-                                            android:backgroundTint="@color/status_done"
-                                            android:paddingStart="8dp"
-                                            android:paddingEnd="8dp"
-                                            android:paddingTop="2dp"
-                                            android:paddingBottom="2dp"
-                                            android:minWidth="24dp"
+                                            android:backgroundTint="#E0E0E0"
                                             android:gravity="center" />
 
                                     </LinearLayout>
@@ -345,7 +490,7 @@
                         android:id="@+id/tvNoTasks"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Chưa có công việc nào"
+                        android:text="No tasks yet"
                         android:textSize="14sp"
                         android:textColor="@color/text_hint"
                         android:gravity="center"
