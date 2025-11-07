@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.prm392.taskmanaapp.R;
 import com.prm392.taskmanaapp.ui.home.HomeActivity;
 import com.prm392.taskmanaapp.ui.login.LoginActivity;
+import com.prm392.taskmanaapp.utils.ValidationUtils;
 
 public class RegisterActivity extends AppCompatActivity implements RegisterContract.View {
 
@@ -63,8 +64,25 @@ public class RegisterActivity extends AppCompatActivity implements RegisterContr
                 return;
             }
 
+            // Validate email format
+            if (!ValidationUtils.isValidEmail(email)) {
+                String errorMsg = ValidationUtils.getEmailErrorMessage(email);
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+                etEmail.requestFocus();
+                return;
+            }
+
+            // Validate password
+            String passwordError = ValidationUtils.getPasswordErrorMessage(password);
+            if (passwordError != null) {
+                Toast.makeText(this, passwordError, Toast.LENGTH_SHORT).show();
+                etPassword.requestFocus();
+                return;
+            }
+
             if (!password.equals(confirmPassword)) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                etConfirmPassword.requestFocus();
                 return;
             }
 

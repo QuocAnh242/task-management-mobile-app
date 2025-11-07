@@ -47,6 +47,11 @@ public class ProjectRepository {
         void onError(String message);
     }
 
+    public interface OnInviteResponseListener {
+        void onSuccess();
+        void onError(String message);
+    }
+
     private final FirebaseFirestore db;
     private final FirebaseAuth mAuth;
 
@@ -67,16 +72,27 @@ public class ProjectRepository {
                 .get()
                 .addOnSuccessListener(userDoc -> {
                     String userName = userDoc.getString("name");
-                    if (userName == null) userName = currentUser.getEmail();
+                    if (userName == null) {
+                        userName = currentUser.getEmail();
+                    }
+                    final String finalUserName = userName;
 
                     String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+                    // Assign color based on project count or random
+                    String[] colors = {
+                            "#3498DB", "#E74C3C", "#2ECC71", "#F39C12",
+                            "#9B59B6", "#1ABC9C", "#E67E22", "#34495E"
+                    };
+                    String projectColor = colors[(int)(System.currentTimeMillis() % colors.length)];
 
                     Map<String, Object> projectData = new HashMap<>();
                     projectData.put("title", title);
                     projectData.put("description", description);
                     projectData.put("leaderId", currentUser.getUid());
-                    projectData.put("leaderName", userName);
+                    projectData.put("leaderName", finalUserName);
                     projectData.put("memberIds", new ArrayList<String>());
+                    projectData.put("color", projectColor);
                     projectData.put("createdAt", createdAt);
                     projectData.put("endedAt", "");
 
@@ -88,7 +104,8 @@ public class ProjectRepository {
                                 project.setTitle(title);
                                 project.setDescription(description);
                                 project.setLeaderId(currentUser.getUid());
-                                project.setLeaderName(userName);
+                                project.setLeaderName(finalUserName);
+                                project.setColor(projectColor);
                                 project.setCreatedAt(createdAt);
                                 project.setEndedAt("");
                                 project.setMemberIds(new ArrayList<>());
@@ -264,9 +281,43 @@ public class ProjectRepository {
                                 }
 
                                 memberIds.add(userId);
+                                String projectTitle = projectDoc.getString("title");
+                                String projectTitleFinal = projectTitle != null ? projectTitle : "Project";
+                                
                                 db.collection("projects").document(projectId)
                                         .update("memberIds", memberIds)
-                                        .addOnSuccessListener(aVoid -> listener.onSuccess())
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Create notification for invited user
+                                            String invitedUserName = userDoc.getString("name");
+                                            if (invitedUserName == null) {
+                                                invitedUserName = userDoc.getString("email");
+                                            }
+                                            String notificationTitle = "Bạn đã được mời vào dự án";
+                                            String notificationContent = currentUser.getDisplayName() != null 
+                                                    ? currentUser.getDisplayName() 
+                                                    : currentUser.getEmail() + " đã mời bạn tham gia dự án: " + projectTitleFinal;
+                                            
+                                            // Create notification
+                                            Map<String, Object> notificationData = new HashMap<>();
+                                            notificationData.put("userId", userId);
+                                            notificationData.put("projectId", projectId);
+                                            notificationData.put("title", notificationTitle);
+                                            notificationData.put("content", notificationContent);
+                                            notificationData.put("status", "UNREAD");
+                                            notificationData.put("type", "PROJECT_INVITE");
+                                            String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                                            notificationData.put("createdAt", createdAt);
+                                            
+                                            db.collection("notifications")
+                                                    .add(notificationData)
+                                                    .addOnSuccessListener(documentReference -> {
+                                                        listener.onSuccess();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        // Notification failed but invitation succeeded
+                                                        listener.onSuccess();
+                                                    });
+                                        })
                                         .addOnFailureListener(e -> listener.onError("Failed to invite user: " + e.getMessage()));
                             })
                             .addOnFailureListener(e -> listener.onError("Failed to get project: " + e.getMessage()));
@@ -294,7 +345,8 @@ public class ProjectRepository {
                     if (memberIds == null) {
                         memberIds = new ArrayList<>();
                     }
-                    memberIds.add(projectDoc.getString("leaderId")); // Also exclude leader
+                    List<String> finalMemberIds = new ArrayList<>(memberIds);
+                    finalMemberIds.add(projectDoc.getString("leaderId")); // Also exclude leader
 
                     db.collection("users")
                             .get()
@@ -302,7 +354,7 @@ public class ProjectRepository {
                                 List<Map<String, String>> users = new ArrayList<>();
                                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                                     String userId = doc.getId();
-                                    if (!userId.equals(currentUser.getUid()) && !memberIds.contains(userId)) {
+                                    if (!userId.equals(currentUser.getUid()) && !finalMemberIds.contains(userId)) {
                                         Map<String, String> user = new HashMap<>();
                                         user.put("id", userId);
                                         user.put("name", doc.getString("name"));
@@ -324,6 +376,7 @@ public class ProjectRepository {
         project.setDescription(doc.getString("description"));
         project.setLeaderId(doc.getString("leaderId"));
         project.setLeaderName(doc.getString("leaderName"));
+        project.setColor(doc.getString("color"));
         project.setCreatedAt(doc.getString("createdAt"));
         project.setEndedAt(doc.getString("endedAt"));
         
@@ -335,6 +388,56 @@ public class ProjectRepository {
         }
         
         return project;
+    }
+
+    /**
+     * Accept project invitation - add user to project members
+     */
+    public void acceptInvite(String projectId, OnInviteResponseListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+
+        // Get project and add user to members
+        db.collection("projects").document(projectId)
+                .get()
+                .addOnSuccessListener(projectDoc -> {
+                    if (!projectDoc.exists()) {
+                        listener.onError("Project not found");
+                        return;
+                    }
+
+                    List<String> memberIds = (List<String>) projectDoc.get("memberIds");
+                    if (memberIds == null) {
+                        memberIds = new ArrayList<>();
+                    }
+
+                    if (memberIds.contains(userId)) {
+                        listener.onError("User is already a member");
+                        return;
+                    }
+
+                    memberIds.add(userId);
+
+                    db.collection("projects").document(projectId)
+                            .update("memberIds", memberIds)
+                            .addOnSuccessListener(aVoid -> listener.onSuccess())
+                            .addOnFailureListener(e -> listener.onError("Failed to accept invite: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> listener.onError("Failed to get project: " + e.getMessage()));
+    }
+
+    /**
+     * Decline project invitation - just mark notification as read
+     */
+    public void declineInvite(String projectId, OnInviteResponseListener listener) {
+        // For decline, we just need to mark notification as read
+        // The user won't be added to the project
+        listener.onSuccess();
     }
 }
 

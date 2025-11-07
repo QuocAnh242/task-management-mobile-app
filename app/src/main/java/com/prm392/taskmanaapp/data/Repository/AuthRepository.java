@@ -34,13 +34,27 @@ public class AuthRepository {
             return;
         }
 
+        // Validate email format
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
+            listener.onError("Please enter a valid email address (e.g., user@example.com)");
+            return;
+        }
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         listener.onSuccess();
                     } else {
-                        // Provide a more specific error message if possible
-                        listener.onError(task.getException().getMessage());
+                        String errorMessage = "Login failed";
+                        if (task.getException() != null) {
+                            String error = task.getException().getMessage();
+                            if (error != null && error.contains("CONFIGURATION_NOT_FOUND")) {
+                                errorMessage = "Firebase configuration error. Please add SHA-1/SHA-256 fingerprints to Firebase Console.";
+                            } else {
+                                errorMessage = error;
+                            }
+                        }
+                        listener.onError(errorMessage);
                     }
                 });
     }
@@ -48,6 +62,12 @@ public class AuthRepository {
     public void registerUser(String name, String email, String password, String role, OnRegisterFinishedListener listener) {
         if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
             listener.onError("Name, email and password cannot be empty.");
+            return;
+        }
+
+        // Validate email format
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
+            listener.onError("Please enter a valid email address (e.g., user@example.com)");
             return;
         }
 

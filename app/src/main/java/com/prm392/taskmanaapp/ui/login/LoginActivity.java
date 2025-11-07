@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.prm392.taskmanaapp.R;
 import com.prm392.taskmanaapp.ui.home.HomeActivity;
 import com.prm392.taskmanaapp.ui.register.RegisterActivity;
+import com.prm392.taskmanaapp.utils.ValidationUtils;
 
 public class LoginActivity extends AppCompatActivity implements LoginContract.View {
 
@@ -42,6 +43,22 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+
+            // Validate email format
+            if (!ValidationUtils.isValidEmail(email)) {
+                String errorMsg = ValidationUtils.getEmailErrorMessage(email);
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+                etEmail.requestFocus();
+                return;
+            }
+
+            // Validate password
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+                etPassword.requestFocus();
+                return;
+            }
+
             presenter.login(email, password);
         });
 

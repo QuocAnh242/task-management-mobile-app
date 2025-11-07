@@ -1,22 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA">
+    android:background="@color/background_light">
 
-    <!-- Header -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/headerCard"
-        android:layout_width="0dp"
+    <!-- App Bar with Back Button -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:elevation="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/header_gradient"
+            android:padding="16dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Quay lại"
+                app:tint="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/projectInfoLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintStart_toEndOf="@+id/btnBack"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tvProjectTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Project Title"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvProjectDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Project Description"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:alpha="0.9"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,41 +85,278 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tvProjectTitle"
+            <!-- Create Task Button Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Project Title"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#2C3E50" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/background_card">
 
-            <Button
-                android:id="@+id/btnCreateTask"
+                <Button
+                    android:id="@+id/btnCreateTask"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="➕ Tạo công việc mới"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/primary"
+                    app:cornerRadius="8dp" />
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Kanban Board -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="16dp"
-                android:text="Create New Task"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="8dp" />
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/background_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bảng công việc"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Kanban ScrollView -->
+                    <HorizontalScrollView
+                        android:id="@+id/kanbanScrollView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none"
+                        android:fadeScrollbars="true">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingEnd="8dp">
+
+                            <!-- TODO Column -->
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="320dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="12dp"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="1dp"
+                                app:cardBackgroundColor="#F8F9FA">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:layout_marginBottom="12dp">
+
+                                        <View
+                                            android:layout_width="4dp"
+                                            android:layout_height="20dp"
+                                            android:background="@color/status_todo"
+                                            android:layout_marginEnd="8dp" />
+
+                                        <TextView
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="1"
+                                            android:text="TODO"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold"
+                                            android:textColor="@color/text_primary" />
+
+                                        <TextView
+                                            android:id="@+id/tvTodoCount"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0"
+                                            android:textSize="14sp"
+                                            android:textColor="@color/white"
+                                            android:background="@drawable/badge_background"
+                                            android:backgroundTint="@color/status_todo"
+                                            android:paddingStart="8dp"
+                                            android:paddingEnd="8dp"
+                                            android:paddingTop="2dp"
+                                            android:paddingBottom="2dp"
+                                            android:minWidth="24dp"
+                                            android:gravity="center" />
+
+                                    </LinearLayout>
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/rvTodoTasks"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:nestedScrollingEnabled="false"
+                                        android:minHeight="200dp" />
+
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+
+                            <!-- IN PROGRESS Column -->
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="320dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="12dp"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="1dp"
+                                app:cardBackgroundColor="#F8F9FA">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:layout_marginBottom="12dp">
+
+                                        <View
+                                            android:layout_width="4dp"
+                                            android:layout_height="20dp"
+                                            android:background="@color/status_in_progress"
+                                            android:layout_marginEnd="8dp" />
+
+                                        <TextView
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="1"
+                                            android:text="IN PROGRESS"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold"
+                                            android:textColor="@color/text_primary" />
+
+                                        <TextView
+                                            android:id="@+id/tvInProgressCount"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0"
+                                            android:textSize="14sp"
+                                            android:textColor="@color/white"
+                                            android:background="@drawable/badge_background"
+                                            android:backgroundTint="@color/status_in_progress"
+                                            android:paddingStart="8dp"
+                                            android:paddingEnd="8dp"
+                                            android:paddingTop="2dp"
+                                            android:paddingBottom="2dp"
+                                            android:minWidth="24dp"
+                                            android:gravity="center" />
+
+                                    </LinearLayout>
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/rvInProgressTasks"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:nestedScrollingEnabled="false"
+                                        android:minHeight="200dp" />
+
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+
+                            <!-- DONE Column -->
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="320dp"
+                                android:layout_height="wrap_content"
+                                app:cardCornerRadius="8dp"
+                                app:cardElevation="1dp"
+                                app:cardBackgroundColor="#F8F9FA">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:layout_marginBottom="12dp">
+
+                                        <View
+                                            android:layout_width="4dp"
+                                            android:layout_height="20dp"
+                                            android:background="@color/status_done"
+                                            android:layout_marginEnd="8dp" />
+
+                                        <TextView
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="1"
+                                            android:text="DONE"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold"
+                                            android:textColor="@color/text_primary" />
+
+                                        <TextView
+                                            android:id="@+id/tvDoneCount"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0"
+                                            android:textSize="14sp"
+                                            android:textColor="@color/white"
+                                            android:background="@drawable/badge_background"
+                                            android:backgroundTint="@color/status_done"
+                                            android:paddingStart="8dp"
+                                            android:paddingEnd="8dp"
+                                            android:paddingTop="2dp"
+                                            android:paddingBottom="2dp"
+                                            android:minWidth="24dp"
+                                            android:gravity="center" />
+
+                                    </LinearLayout>
+
+                                    <androidx.recyclerview.widget.RecyclerView
+                                        android:id="@+id/rvDoneTasks"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:nestedScrollingEnabled="false"
+                                        android:minHeight="200dp" />
+
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <!-- Empty State -->
+                    <TextView
+                        android:id="@+id/tvNoTasks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Chưa có công việc nào"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_hint"
+                        android:gravity="center"
+                        android:padding="32dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Tasks List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTasks"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerCard" />
+    </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -66,10 +364,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_anchor="@id/headerLayout"
+        app:layout_anchorGravity="center" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
-
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -41,12 +41,46 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = tasks.get(position);
         holder.tvTitle.setText(task.getTitle());
         holder.tvDescription.setText(task.getDescription());
-        holder.tvPriority.setText("Priority: " + task.getPriority());
-        holder.tvStatus.setText("Status: " + task.getStatus());
+        
+        // Set priority with color
+        String priority = task.getPriority();
+        holder.tvPriority.setText(priority);
+        if (priority != null) {
+            switch (priority.toUpperCase()) {
+                case "HIGH":
+                    holder.tvPriority.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.priority_high));
+                    break;
+                case "MEDIUM":
+                    holder.tvPriority.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.priority_medium));
+                    break;
+                case "LOW":
+                    holder.tvPriority.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.priority_low));
+                    break;
+            }
+        }
+        
+        // Set status with color
+        String status = task.getStatus();
+        holder.tvStatus.setText(status);
+        if (status != null) {
+            switch (status.toUpperCase()) {
+                case "DONE":
+                    holder.tvStatus.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.status_done));
+                    break;
+                case "IN_PROGRESS":
+                    holder.tvStatus.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.status_in_progress));
+                    break;
+                case "TODO":
+                default:
+                    holder.tvStatus.setBackgroundTintList(holder.itemView.getContext().getColorStateList(R.color.status_todo));
+                    break;
+            }
+        }
+        
         if (task.getAssignedName() != null && !task.getAssignedName().isEmpty()) {
-            holder.tvAssignedTo.setText("Assigned to: " + task.getAssignedName());
+            holder.tvAssignedTo.setText("Giao cho: " + task.getAssignedName());
         } else {
-            holder.tvAssignedTo.setText("Unassigned");
+            holder.tvAssignedTo.setText("Chưa giao cho ai");
         }
     }
 

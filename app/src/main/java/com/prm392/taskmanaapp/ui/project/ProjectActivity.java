@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.prm392.taskmanaapp.R;
 import com.prm392.taskmanaapp.data.Task;
 
@@ -26,15 +29,25 @@ import java.util.Map;
 public class ProjectActivity extends AppCompatActivity implements TaskContract.View {
 
     private TextView tvProjectTitle;
-    private RecyclerView rvTasks;
+    private RecyclerView rvTodoTasks;
+    private RecyclerView rvInProgressTasks;
+    private RecyclerView rvDoneTasks;
+    private TextView tvTodoCount;
+    private TextView tvInProgressCount;
+    private TextView tvDoneCount;
+    private TextView tvNoTasks;
+    private View kanbanScrollView;
     private Button btnCreateTask;
     private ProgressBar progressBar;
-    private TaskAdapter taskAdapter;
+    private TaskAdapter todoAdapter;
+    private TaskAdapter inProgressAdapter;
+    private TaskAdapter doneAdapter;
     private List<Task> taskList;
     private List<Map<String, String>> usersForAssignment;
     private String projectId;
     private String projectTitle;
     private TaskContract.Presenter presenter;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +67,33 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
         // Initialize views
         tvProjectTitle = findViewById(R.id.tvProjectTitle);
-        rvTasks = findViewById(R.id.rvTasks);
+        TextView tvProjectDescription = findViewById(R.id.tvProjectDescription);
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        rvTodoTasks = findViewById(R.id.rvTodoTasks);
+        rvInProgressTasks = findViewById(R.id.rvInProgressTasks);
+        rvDoneTasks = findViewById(R.id.rvDoneTasks);
+        tvTodoCount = findViewById(R.id.tvTodoCount);
+        tvInProgressCount = findViewById(R.id.tvInProgressCount);
+        tvDoneCount = findViewById(R.id.tvDoneCount);
+        tvNoTasks = findViewById(R.id.tvNoTasks);
+        kanbanScrollView = findViewById(R.id.kanbanScrollView);
         btnCreateTask = findViewById(R.id.btnCreateTask);
         progressBar = findViewById(R.id.progressBar);
+
+        // Setup back button
+        btnBack.setOnClickListener(v -> finish());
+
+        // Initialize Firebase FIRST
+        db = FirebaseFirestore.getInstance();
 
         // Set project title
         if (projectTitle != null) {
             tvProjectTitle.setText(projectTitle);
+        }
+
+        // Load project details from Firestore
+        if (projectId != null) {
+            loadProjectDetails();
         }
 
         // Initialize task list
@@ -88,8 +121,9 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
     }
 
     private void setupTasksRecyclerView() {
-        rvTasks.setLayoutManager(new LinearLayoutManager(this));
-        taskAdapter = new TaskAdapter(taskList, new TaskAdapter.OnTaskClickListener() {
+        // Setup TODO column
+        rvTodoTasks.setLayoutManager(new LinearLayoutManager(this));
+        todoAdapter = new TaskAdapter(new ArrayList<>(), new TaskAdapter.OnTaskClickListener() {
             @Override
             public void onTaskClick(Task task) {
                 showManageTaskDialog(task);
@@ -100,7 +134,37 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
                 showAssignTaskDialog(task);
             }
         });
-        rvTasks.setAdapter(taskAdapter);
+        rvTodoTasks.setAdapter(todoAdapter);
+
+        // Setup IN PROGRESS column
+        rvInProgressTasks.setLayoutManager(new LinearLayoutManager(this));
+        inProgressAdapter = new TaskAdapter(new ArrayList<>(), new TaskAdapter.OnTaskClickListener() {
+            @Override
+            public void onTaskClick(Task task) {
+                showManageTaskDialog(task);
+            }
+
+            @Override
+            public void onTaskLongClick(Task task) {
+                showAssignTaskDialog(task);
+            }
+        });
+        rvInProgressTasks.setAdapter(inProgressAdapter);
+
+        // Setup DONE column
+        rvDoneTasks.setLayoutManager(new LinearLayoutManager(this));
+        doneAdapter = new TaskAdapter(new ArrayList<>(), new TaskAdapter.OnTaskClickListener() {
+            @Override
+            public void onTaskClick(Task task) {
+                showManageTaskDialog(task);
+            }
+
+            @Override
+            public void onTaskLongClick(Task task) {
+                showAssignTaskDialog(task);
+            }
+        });
+        rvDoneTasks.setAdapter(doneAdapter);
     }
 
     private void showCreateTaskDialog() {
@@ -299,7 +363,53 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
     public void showTasks(List<Task> tasks) {
         taskList.clear();
         taskList.addAll(tasks);
-        taskAdapter.updateTasks(taskList);
+
+        // Filter tasks by status
+        List<Task> todoTasks = new ArrayList<>();
+        List<Task> inProgressTasks = new ArrayList<>();
+        List<Task> doneTasks = new ArrayList<>();
+
+        for (Task task : tasks) {
+            String status = task.getStatus();
+            if (status != null) {
+                switch (status.toUpperCase()) {
+                    case "TODO":
+                        todoTasks.add(task);
+                        break;
+                    case "IN_PROGRESS":
+                        inProgressTasks.add(task);
+                        break;
+                    case "DONE":
+                        doneTasks.add(task);
+                        break;
+                    default:
+                        // Default to TODO if status is not set or invalid
+                        todoTasks.add(task);
+                        break;
+                }
+            } else {
+                todoTasks.add(task);
+            }
+        }
+
+        // Update adapters
+        todoAdapter.updateTasks(todoTasks);
+        inProgressAdapter.updateTasks(inProgressTasks);
+        doneAdapter.updateTasks(doneTasks);
+
+        // Update counts
+        tvTodoCount.setText(String.valueOf(todoTasks.size()));
+        tvInProgressCount.setText(String.valueOf(inProgressTasks.size()));
+        tvDoneCount.setText(String.valueOf(doneTasks.size()));
+
+        // Show/hide empty state
+        if (tasks.isEmpty()) {
+            tvNoTasks.setVisibility(View.VISIBLE);
+            kanbanScrollView.setVisibility(View.GONE);
+        } else {
+            tvNoTasks.setVisibility(View.GONE);
+            kanbanScrollView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -331,6 +441,28 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
         usersForAssignment.addAll(users);
         // Show create task dialog after users are loaded
         showCreateTaskDialog();
+    }
+
+    private void loadProjectDetails() {
+        db.collection("projects").document(projectId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String title = documentSnapshot.getString("title");
+                        String description = documentSnapshot.getString("description");
+                        
+                        if (title != null) {
+                            tvProjectTitle.setText(title);
+                        }
+                        if (description != null) {
+                            TextView tvProjectDescription = findViewById(R.id.tvProjectDescription);
+                            tvProjectDescription.setText(description);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Silent fail - just use title from intent
+                });
     }
 
     @Override

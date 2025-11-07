@@ -1,5 +1,6 @@
 package com.prm392.taskmanaapp.ui.project;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,34 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         if (project.getLeaderName() != null) {
             holder.tvLeader.setText("Leader: " + project.getLeaderName());
         }
+
+        // Set member count
+        int memberCount = project.getMemberIds() != null ? project.getMemberIds().size() : 0;
+        holder.tvMemberCount.setText(memberCount + " thành viên");
+
+        // Set project color
+        String color = project.getColor();
+        if (color != null && !color.isEmpty()) {
+            try {
+                holder.colorBar.setBackgroundColor(Color.parseColor(color));
+            } catch (IllegalArgumentException e) {
+                // Use default color if parsing fails
+                holder.colorBar.setBackgroundColor(holder.itemView.getContext().getResources().getColor(R.color.project_color_1));
+            }
+        } else {
+            // Assign color based on position if no color set
+            int[] colors = {
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_1),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_2),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_3),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_4),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_5),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_6),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_7),
+                    holder.itemView.getContext().getResources().getColor(R.color.project_color_8)
+            };
+            holder.colorBar.setBackgroundColor(colors[position % colors.length]);
+        }
     }
 
     @Override
@@ -62,14 +91,18 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         TextView tvTitle;
         TextView tvDescription;
         TextView tvLeader;
+        TextView tvMemberCount;
         Button btnInviteUser;
+        View colorBar;
 
         ProjectViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvProjectTitle);
             tvDescription = itemView.findViewById(R.id.tvProjectDescription);
             tvLeader = itemView.findViewById(R.id.tvProjectLeader);
+            tvMemberCount = itemView.findViewById(R.id.tvMemberCount);
             btnInviteUser = itemView.findViewById(R.id.btnInviteUser);
+            colorBar = itemView.findViewById(R.id.colorBar);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {

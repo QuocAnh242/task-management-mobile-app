@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -35,9 +36,13 @@ public class ProjectManagementActivity extends AppCompatActivity implements Proj
         setContentView(R.layout.activity_project_management);
 
         // Initialize views
+        ImageButton btnBack = findViewById(R.id.btnBack);
         rvProjects = findViewById(R.id.rvProjects);
         btnCreateProject = findViewById(R.id.btnCreateProject);
         progressBar = findViewById(R.id.progressBar);
+
+        // Setup back button
+        btnBack.setOnClickListener(v -> finish());
 
         // Initialize project list
         projectList = new ArrayList<>();

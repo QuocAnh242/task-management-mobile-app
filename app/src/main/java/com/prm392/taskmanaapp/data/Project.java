@@ -10,6 +10,7 @@ public class Project {
     private String leaderId; // Firebase UID of project creator
     private String leaderName;
     private List<String> memberIds; // List of Firebase UIDs of project members
+    private String color; // Project color for UI
     private String createdAt;
     private String endedAt;
     
@@ -53,5 +54,8 @@ public class Project {
 
     public String getEndedAt() { return endedAt; }
     public void setEndedAt(String endedAt) { this.endedAt = endedAt; }
+
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
 }
 

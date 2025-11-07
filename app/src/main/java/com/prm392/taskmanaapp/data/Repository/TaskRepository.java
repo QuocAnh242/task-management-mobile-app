@@ -76,8 +76,11 @@ public class TaskRepository {
                     .get()
                     .addOnSuccessListener(userDoc -> {
                         String userName = userDoc.getString("name");
-                        if (userName == null) userName = userDoc.getString("email");
-                        taskData.put("assignedName", userName != null ? userName : "");
+                        if (userName == null) {
+                            userName = userDoc.getString("email");
+                        }
+                        final String finalUserName = userName != null ? userName : "";
+                        taskData.put("assignedName", finalUserName);
 
                         db.collection("tasks")
                                 .add(taskData)
@@ -90,7 +93,7 @@ public class TaskRepository {
                                     task.setStatus(status);
                                     task.setProjectId(projectId);
                                     task.setAssignedTo(assignedToUserId);
-                                    task.setAssignedName(userName != null ? userName : "");
+                                    task.setAssignedName(finalUserName);
                                     task.setCreatedAt(createdAt);
                                     task.setEndedAt("");
 

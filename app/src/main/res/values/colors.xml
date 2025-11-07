@@ -2,4 +2,43 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary Colors -->
+    <color name="primary">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="accent">#FF4081</color>
+    
+    <!-- Background Colors -->
+    <color name="background_light">#F5F7FA</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="background_card">#FFFFFF</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#7F8C8D</color>
+    <color name="text_hint">#95A5A6</color>
+    
+    <!-- Project Colors -->
+    <color name="project_color_1">#3498DB</color>
+    <color name="project_color_2">#E74C3C</color>
+    <color name="project_color_3">#2ECC71</color>
+    <color name="project_color_4">#F39C12</color>
+    <color name="project_color_5">#9B59B6</color>
+    <color name="project_color_6">#1ABC9C</color>
+    <color name="project_color_7">#E67E22</color>
+    <color name="project_color_8">#34495E</color>
+    
+    <!-- Status Colors -->
+    <color name="status_todo">#95A5A6</color>
+    <color name="status_in_progress">#3498DB</color>
+    <color name="status_done">#2ECC71</color>
+    
+    <!-- Priority Colors -->
+    <color name="priority_low">#2ECC71</color>
+    <color name="priority_medium">#F39C12</color>
+    <color name="priority_high">#E74C3C</color>
+    
+    <!-- Divider -->
+    <color name="divider">#E0E0E0</color>
 </resources>
