@@ -50,7 +50,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
         // Set member count
         int memberCount = project.getMemberIds() != null ? project.getMemberIds().size() : 0;
-        holder.tvMemberCount.setText(memberCount + " thành viên");
+        holder.tvMemberCount.setText(memberCount + " members");
 
         // Set project color
         String color = project.getColor();

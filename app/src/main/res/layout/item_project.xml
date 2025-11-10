@@ -85,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Mời thành viên"
+                android:text="Invite Member"
                 android:textSize="12sp"
                 android:backgroundTint="@color/primary"
                 app:cornerRadius="6dp" />

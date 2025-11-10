@@ -26,6 +26,16 @@ public class CommentRepository {
         void onError(String message);
     }
 
+    public interface OnCommentUpdatedListener {
+        void onSuccess();
+        void onError(String message);
+    }
+
+    public interface OnCommentDeletedListener {
+        void onSuccess();
+        void onError(String message);
+    }
+
     private final FirebaseFirestore db;
     private final FirebaseAuth mAuth;
 
@@ -99,10 +109,178 @@ public class CommentRepository {
 
                     db.collection("comments")
                             .add(commentData)
-                            .addOnSuccessListener(documentReference -> listener.onSuccess())
+                            .addOnSuccessListener(documentReference -> {
+                                // Extract and send notifications to mentioned users
+                                extractAndSendMentionNotifications(documentReference.getId(), taskId, content, finalUserName);
+                                listener.onSuccess();
+                            })
                             .addOnFailureListener(e -> listener.onError("Failed to create comment: " + e.getMessage()));
                 })
                 .addOnFailureListener(e -> listener.onError("Failed to get user data: " + e.getMessage()));
+    }
+
+    public void updateComment(String commentId, String content, OnCommentUpdatedListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        // Get comment to check ownership and get taskId
+        db.collection("comments").document(commentId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        listener.onError("Comment not found");
+                        return;
+                    }
+
+                    String userId = documentSnapshot.getString("userId");
+                    if (!userId.equals(currentUser.getUid())) {
+                        listener.onError("You can only edit your own comments");
+                        return;
+                    }
+
+                    String taskId = documentSnapshot.getString("taskId");
+                    String userName = documentSnapshot.getString("userName");
+
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("content", content);
+
+                    db.collection("comments").document(commentId)
+                            .update(updates)
+                            .addOnSuccessListener(aVoid -> {
+                                // Extract and send notifications to newly mentioned users
+                                extractAndSendMentionNotifications(commentId, taskId, content, userName);
+                                listener.onSuccess();
+                            })
+                            .addOnFailureListener(e -> listener.onError("Failed to update comment: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> listener.onError("Failed to get comment: " + e.getMessage()));
+    }
+
+    public void deleteComment(String commentId, OnCommentDeletedListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        // Check ownership before deleting
+        db.collection("comments").document(commentId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        listener.onError("Comment not found");
+                        return;
+                    }
+
+                    String userId = documentSnapshot.getString("userId");
+                    if (!userId.equals(currentUser.getUid())) {
+                        listener.onError("You can only delete your own comments");
+                        return;
+                    }
+
+                    db.collection("comments").document(commentId)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> listener.onSuccess())
+                            .addOnFailureListener(e -> listener.onError("Failed to delete comment: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> listener.onError("Failed to get comment: " + e.getMessage()));
+    }
+
+    private void extractAndSendMentionNotifications(String commentId, String taskId, String content, String commenterName) {
+        if (content == null || content.isEmpty() || taskId == null) {
+            return;
+        }
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) return;
+
+        // Extract @mentions from content (format: @username)
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("@(\\w+)");
+        java.util.regex.Matcher matcher = pattern.matcher(content);
+        java.util.Set<String> mentionedUsernames = new java.util.HashSet<>();
+        while (matcher.find()) {
+            mentionedUsernames.add(matcher.group(1).toLowerCase());
+        }
+
+        if (mentionedUsernames.isEmpty()) {
+            return;
+        }
+
+        // Get task and project info
+        db.collection("tasks").document(taskId)
+                .get()
+                .addOnSuccessListener(taskDoc -> {
+                    if (!taskDoc.exists()) return;
+                    
+                    String taskTitle = taskDoc.getString("title");
+                    String projectId = taskDoc.getString("projectId");
+                    
+                    if (projectId == null) return;
+
+                    // Get project members
+                    db.collection("projects").document(projectId)
+                            .get()
+                            .addOnSuccessListener(projectDoc -> {
+                                if (!projectDoc.exists()) return;
+                                
+                                List<String> memberIds = (List<String>) projectDoc.get("memberIds");
+                                String leaderId = projectDoc.getString("leaderId");
+                                
+                                List<String> allUserIds = new ArrayList<>();
+                                if (leaderId != null) allUserIds.add(leaderId);
+                                if (memberIds != null) allUserIds.addAll(memberIds);
+                                
+                                // Match usernames to user IDs and send notifications
+                                final int[] processed = {0};
+                                final int total = allUserIds.size();
+                                
+                                for (String userId : allUserIds) {
+                                    db.collection("users").document(userId)
+                                            .get()
+                                            .addOnSuccessListener(userDoc -> {
+                                                if (userDoc.exists()) {
+                                                    String name = userDoc.getString("name");
+                                                    String email = userDoc.getString("email");
+                                                    
+                                                    boolean isMentioned = false;
+                                                    if (name != null) {
+                                                        String nameLower = name.toLowerCase().replaceAll("\\s+", "");
+                                                        if (mentionedUsernames.contains(nameLower)) {
+                                                            isMentioned = true;
+                                                        }
+                                                    }
+                                                    if (!isMentioned && email != null) {
+                                                        String emailPrefix = email.split("@")[0].toLowerCase();
+                                                        if (mentionedUsernames.contains(emailPrefix)) {
+                                                            isMentioned = true;
+                                                        }
+                                                    }
+                                                    
+                                                    if (isMentioned && !userId.equals(currentUser.getUid())) {
+                                                        Map<String, Object> notificationData = new HashMap<>();
+                                                        notificationData.put("userId", userId);
+                                                        notificationData.put("projectId", projectId);
+                                                        notificationData.put("title", "You were mentioned in a comment");
+                                                        notificationData.put("content", commenterName + " mentioned you in a comment on task: " + (taskTitle != null ? taskTitle : "Task"));
+                                                        notificationData.put("status", "UNREAD");
+                                                        notificationData.put("type", "COMMENT_MENTION");
+                                                        String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                                                        notificationData.put("createdAt", createdAt);
+                                                        db.collection("notifications").add(notificationData);
+                                                    }
+                                                }
+                                                
+                                                processed[0]++;
+                                                if (processed[0] == total) {
+                                                    // All users processed
+                                                }
+                                            });
+                                }
+                            });
+                });
     }
 
     private Comment documentToComment(QueryDocumentSnapshot doc) {

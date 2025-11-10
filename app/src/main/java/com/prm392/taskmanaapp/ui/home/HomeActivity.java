@@ -40,7 +40,6 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView rvProjects;
     private RecyclerView rvTasks;
     private RecyclerView rvNotifications;
-    private TextView tvWelcome;
     private TextView tvNoProjects;
     private TextView tvNoTasks;
     private TextView tvNoNotifications;
@@ -49,8 +48,8 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvTaskCount;
     private Button fabManageProjects;
     private Button btnLogout;
+    private TextView tvWelcome;
     private ProgressBar progressBar;
-    private com.google.android.material.bottomnavigation.BottomNavigationView bottomNavigation;
 
     private ProjectAdapter projectAdapter;
     private TaskAdapter taskAdapter;
@@ -82,7 +81,7 @@ public class HomeActivity extends AppCompatActivity {
         // Setup RecyclerViews
         setupRecyclerViews();
 
-        // Load user name
+        // Load user name for welcome header
         loadUserName();
 
         // Load data
@@ -95,7 +94,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        tvWelcome = findViewById(R.id.tvWelcome);
         rvProjects = findViewById(R.id.rvProjects);
         rvTasks = findViewById(R.id.rvTasks);
         rvNotifications = findViewById(R.id.rvNotifications);
@@ -107,15 +105,8 @@ public class HomeActivity extends AppCompatActivity {
         tvTaskCount = findViewById(R.id.tvTaskCount);
         fabManageProjects = findViewById(R.id.fabManageProjects);
         btnLogout = findViewById(R.id.btnLogout);
+        tvWelcome = findViewById(R.id.tvWelcome);
         progressBar = findViewById(R.id.progressBar);
-        bottomNavigation = findViewById(R.id.bottomNavigation);
-        
-        // Disable bottom navigation (UI only)
-        if (bottomNavigation != null) {
-            bottomNavigation.setEnabled(false);
-            bottomNavigation.setClickable(false);
-            bottomNavigation.setFocusable(false);
-        }
     }
 
     private void setupRecyclerViews() {
@@ -133,7 +124,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onInviteUserClick(Project project) {
-                // Handle invite user
+                showInviteUserDialog(project);
             }
         });
         rvProjects.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -143,7 +134,28 @@ public class HomeActivity extends AppCompatActivity {
         taskAdapter = new TaskAdapter(new ArrayList<>(), new TaskAdapter.OnTaskClickListener() {
             @Override
             public void onTaskClick(Task task) {
-                // Handle task click
+                // Navigate to project containing this task
+                if (task.getProjectId() != null && !task.getProjectId().isEmpty()) {
+                    // Load project details to get title
+                    db.collection("projects").document(task.getProjectId())
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    String projectTitle = documentSnapshot.getString("title");
+                                    Intent intent = new Intent(HomeActivity.this, ProjectActivity.class);
+                                    intent.putExtra("project_id", task.getProjectId());
+                                    intent.putExtra("project_title", projectTitle != null ? projectTitle : "Project");
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(HomeActivity.this, "Project not found", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(HomeActivity.this, "Error loading project: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    Toast.makeText(HomeActivity.this, "Task is not associated with a project", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -181,29 +193,6 @@ public class HomeActivity extends AppCompatActivity {
         rvNotifications.setAdapter(notificationAdapter);
     }
 
-    private void loadUserName() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            // Load user name from Firestore
-            db.collection("users").document(user.getUid())
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String name = documentSnapshot.getString("name");
-                            if (name != null && !name.isEmpty()) {
-                                tvWelcome.setText("Xin chào, " + name + "!");
-                            } else {
-                                tvWelcome.setText("Xin chào, " + user.getEmail() + "!");
-                            }
-                        } else {
-                            tvWelcome.setText("Xin chào, " + user.getEmail() + "!");
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        tvWelcome.setText("Xin chào, " + user.getEmail() + "!");
-                    });
-        }
-    }
 
     private void loadProjects() {
         showProgress(true);
@@ -230,7 +219,7 @@ public class HomeActivity extends AppCompatActivity {
                 showProgress(false);
                 tvNoProjects.setVisibility(View.VISIBLE);
                 rvProjects.setVisibility(View.GONE);
-                Toast.makeText(HomeActivity.this, "Lỗi tải dự án: " + message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Error loading projects: " + message, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -330,27 +319,51 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    private void loadUserName() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            // Load user name from Firestore
+            db.collection("users").document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            if (name != null && !name.isEmpty()) {
+                                tvWelcome.setText("Welcome back, " + name + "!");
+                            } else {
+                                tvWelcome.setText("Welcome back, " + user.getEmail() + "!");
+                            }
+                        } else {
+                            tvWelcome.setText("Welcome back, " + user.getEmail() + "!");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        tvWelcome.setText("Welcome back, " + user.getEmail() + "!");
+                    });
+        }
+    }
+
     private void setupClickListeners() {
+        // Manage Projects FAB
+        fabManageProjects.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, ProjectManagementActivity.class);
+            startActivity(intent);
+        });
+        
         // Logout button
         btnLogout.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Đăng xuất")
-                    .setMessage("Bạn có chắc chắn muốn đăng xuất?")
-                    .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    .setTitle("Logout")
+                    .setMessage("Are you sure you want to logout?")
+                    .setPositiveButton("Logout", (dialog, which) -> {
                         mAuth.signOut();
                         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     })
-                    .setNegativeButton("Hủy", null)
+                    .setNegativeButton("Cancel", null)
                     .show();
-        });
-
-        // Manage Projects FAB
-        fabManageProjects.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, ProjectManagementActivity.class);
-            startActivity(intent);
         });
     }
 
@@ -363,7 +376,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void handleAcceptInvite(Notification notification) {
         if (notification.getProjectId() == null || notification.getProjectId().isEmpty()) {
-            Toast.makeText(this, "Lỗi: Không tìm thấy thông tin dự án", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: Project information not found", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -378,12 +391,12 @@ public class HomeActivity extends AppCompatActivity {
                 loadNotifications();
                 loadProjects();
                 
-                Toast.makeText(HomeActivity.this, "Đã chấp nhận lời mời tham gia dự án", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Project invitation accepted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(String message) {
-                Toast.makeText(HomeActivity.this, "Lỗi: " + message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -396,7 +409,39 @@ public class HomeActivity extends AppCompatActivity {
         // Reload notifications
         loadNotifications();
         
-        Toast.makeText(this, "Đã từ chối lời mời", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Invitation declined", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void showInviteUserDialog(Project project) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_invite_user, null);
+        builder.setView(dialogView);
+        
+        com.google.android.material.textfield.TextInputEditText etEmail = dialogView.findViewById(R.id.etUserEmail);
+        
+        builder.setTitle("Invite User")
+                .setPositiveButton("Invite", (dialog, which) -> {
+                    String email = etEmail.getText().toString().trim();
+                    if (email.isEmpty()) {
+                        Toast.makeText(this, "Please enter an email address", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    projectRepository.inviteUserToProject(project.getProjectId(), email, new ProjectRepository.OnUserInvitedListener() {
+                        @Override
+                        public void onSuccess() {
+                            Toast.makeText(HomeActivity.this, "Invitation sent successfully", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            Toast.makeText(HomeActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null);
+        
+        builder.create().show();
     }
 
     private void showProgress(boolean show) {

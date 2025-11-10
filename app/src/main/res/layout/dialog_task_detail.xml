@@ -119,13 +119,13 @@
             android:padding="16dp"
             android:visibility="gone" />
 
-        <!-- Add Comment (Admin Only) -->
+        <!-- Add Comment -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Add a comment..."
-            android:visibility="gone"
+            android:hint="Add a comment... (Type @username to mention)"
+            android:visibility="visible"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
@@ -151,7 +151,7 @@
             android:text="Add Comment"
             android:textSize="14sp"
             android:backgroundTint="@color/primary"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_marginTop="8dp"
             app:cornerRadius="8dp" />
 

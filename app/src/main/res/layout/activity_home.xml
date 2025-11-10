@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Welcome Banner -->
+            <!-- Welcome Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:cardBackgroundColor="@color/background_card">
@@ -195,7 +195,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:cardBackgroundColor="@color/background_card">
@@ -258,7 +258,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:cardBackgroundColor="@color/background_card">
@@ -302,7 +302,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="80dp"
+                    android:layout_marginBottom="16dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:cardBackgroundColor="@color/background_card">
@@ -346,26 +346,12 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation (UI Only - Not Functional) -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/background_card"
-        app:itemTextColor="@color/text_secondary"
-        app:itemIconTint="@color/text_secondary"
-        app:menu="@menu/bottom_navigation"
-        app:layout_anchorGravity="bottom"
-        android:clickable="false"
-        android:focusable="false" />
-
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_anchor="@id/bottomNavigation"
         app:layout_anchorGravity="center" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

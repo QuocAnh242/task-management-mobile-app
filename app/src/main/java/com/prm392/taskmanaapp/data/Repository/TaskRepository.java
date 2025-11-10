@@ -216,8 +216,8 @@ public class TaskRepository {
                                                 Map<String, Object> notificationData = new HashMap<>();
                                                 notificationData.put("userId", userId);
                                                 notificationData.put("projectId", projectId != null ? projectId : "");
-                                                notificationData.put("title", "Bạn được giao công việc mới");
-                                                notificationData.put("content", assignerName + " đã giao cho bạn công việc: " + taskTitleFinal);
+                                                notificationData.put("title", "New Task Assigned");
+                                                notificationData.put("content", assignerName + " has assigned you a task: " + taskTitleFinal);
                                                 notificationData.put("status", "UNREAD");
                                                 notificationData.put("type", "TASK_ASSIGNED");
                                                 String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
