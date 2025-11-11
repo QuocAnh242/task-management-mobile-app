@@ -13,7 +13,12 @@
           "package_name": "com.prm392.pe_su25_prm392_anhthq"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "811611013219-qgckvt12snca3ad479m608j16kg4jjeh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC_jcSDdOmjSAY57vjBz-hyd9Z6N1R33sE"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "811611013219-qgckvt12snca3ad479m608j16kg4jjeh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -32,7 +42,28 @@
           "package_name": "com.prm392.taskmanaapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "811611013219-ijmqn5al15ovvuec2uttm8bdp5qk8s9e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.prm392.taskmanaapp",
+            "certificate_hash": "b33861d4446a8cb6f6d88143c140dc2b9670c307"
+          }
+        },
+        {
+          "client_id": "811611013219-jmc67ojnqmj5ro3ii1diiprhhn5i3hu1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.prm392.taskmanaapp",
+            "certificate_hash": "5fe2fd3545ec87b0459329ebecbaa419e6c257f4"
+          }
+        },
+        {
+          "client_id": "811611013219-qgckvt12snca3ad479m608j16kg4jjeh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC_jcSDdOmjSAY57vjBz-hyd9Z6N1R33sE"
@@ -40,7 +71,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "811611013219-qgckvt12snca3ad479m608j16kg4jjeh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

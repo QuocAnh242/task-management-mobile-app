@@ -22,6 +22,15 @@ public class LoginPresenter implements LoginContract.Presenter, AuthRepository.O
         authRepository.loginUser(email, password, this);
     }
 
+    @Override
+    public void loginWithGoogle(String idToken) {
+        if (loginView != null) {
+            loginView.showLoading();
+        }
+        // Delegate the Google Sign-In to the repository
+        authRepository.loginWithGoogle(idToken, this);
+    }
+
     // This is called when the View (Activity) is destroyed
     @Override
     public void onDestroy() {
