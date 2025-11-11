@@ -1,10 +1,13 @@
 package com.prm392.taskmanaapp.data.Repository;
 
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.prm392.taskmanaapp.data.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +21,21 @@ public class AuthRepository {
     }
 
     public interface OnRegisterFinishedListener {
+        void onSuccess();
+        void onError(String message);
+    }
+
+    public interface OnProfileLoadedListener {
+        void onSuccess(User user);
+        void onError(String message);
+    }
+
+    public interface OnProfileUpdateListener {
+        void onSuccess();
+        void onError(String message);
+    }
+
+    public interface OnPasswordChangeListener {
         void onSuccess();
         void onError(String message);
     }
@@ -167,5 +185,99 @@ public class AuthRepository {
                         listener.onError(errorMessage);
                     }
                 });
+    }
+
+    // Get current user profile from Firestore
+    public void getUserProfile(OnProfileLoadedListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = mapDocumentToUser(documentSnapshot, currentUser);
+                        listener.onSuccess(user);
+                    } else {
+                        listener.onError("User profile not found");
+                    }
+                })
+                .addOnFailureListener(e -> listener.onError("Failed to load profile: " + e.getMessage()));
+    }
+
+    // Update user profile in Firestore
+    public void updateProfile(String name, String avatar, OnProfileUpdateListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        if (name == null || name.trim().isEmpty()) {
+            listener.onError("Name cannot be empty");
+            return;
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", name.trim());
+        if (avatar != null) {
+            updates.put("avatar", avatar);
+        }
+
+        db.collection("users")
+                .document(currentUser.getUid())
+                .update(updates)
+                .addOnSuccessListener(aVoid -> listener.onSuccess())
+                .addOnFailureListener(e -> listener.onError("Failed to update profile: " + e.getMessage()));
+    }
+
+    // Change password (requires re-authentication)
+    public void changePassword(String currentPassword, String newPassword, OnPasswordChangeListener listener) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onError("User not logged in");
+            return;
+        }
+
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            listener.onError("Current password cannot be empty");
+            return;
+        }
+
+        if (newPassword == null || newPassword.length() < 6) {
+            listener.onError("New password must be at least 6 characters");
+            return;
+        }
+
+        String email = currentUser.getEmail();
+        if (email == null) {
+            listener.onError("Cannot change password for this account");
+            return;
+        }
+
+        // Re-authenticate user before changing password
+        AuthCredential credential = EmailAuthProvider.getCredential(email, currentPassword);
+        currentUser.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> {
+                    // Update password
+                    currentUser.updatePassword(newPassword)
+                            .addOnSuccessListener(aVoid2 -> listener.onSuccess())
+                            .addOnFailureListener(e -> listener.onError("Failed to update password: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> listener.onError("Current password is incorrect"));
+    }
+
+    // Helper method to map Firestore document to User object
+    private User mapDocumentToUser(DocumentSnapshot doc, FirebaseUser firebaseUser) {
+        User user = new User();
+        user.setName(doc.getString("name"));
+        user.setEmail(firebaseUser.getEmail());
+        user.setRole(doc.getString("role"));
+        user.setAvatar(doc.getString("avatar"));
+        return user;
     }
 }
