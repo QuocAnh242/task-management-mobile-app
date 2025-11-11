@@ -27,6 +27,7 @@ import com.prm392.taskmanaapp.data.Repository.ProjectRepository;
 import com.prm392.taskmanaapp.data.Repository.TaskRepository;
 import com.prm392.taskmanaapp.data.Task;
 import com.prm392.taskmanaapp.ui.login.LoginActivity;
+import com.prm392.taskmanaapp.ui.profile.ProfileActivity;
 import com.prm392.taskmanaapp.ui.project.ProjectActivity;
 import com.prm392.taskmanaapp.ui.project.ProjectAdapter;
 import com.prm392.taskmanaapp.ui.project.ProjectManagementActivity;
@@ -48,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvTaskCount;
     private Button fabManageProjects;
     private Button btnLogout;
+    private Button btnProfile;
     private TextView tvWelcome;
     private ProgressBar progressBar;
 
@@ -105,6 +107,7 @@ public class HomeActivity extends AppCompatActivity {
         tvTaskCount = findViewById(R.id.tvTaskCount);
         fabManageProjects = findViewById(R.id.fabManageProjects);
         btnLogout = findViewById(R.id.btnLogout);
+        btnProfile = findViewById(R.id.btnProfile);
         tvWelcome = findViewById(R.id.tvWelcome);
         progressBar = findViewById(R.id.progressBar);
     }
@@ -347,6 +350,12 @@ public class HomeActivity extends AppCompatActivity {
         // Manage Projects FAB
         fabManageProjects.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, ProjectManagementActivity.class);
+            startActivity(intent);
+        });
+
+        // Profile button
+        btnProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
         
