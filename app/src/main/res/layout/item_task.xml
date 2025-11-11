@@ -4,24 +4,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
     app:cardBackgroundColor="@color/background_card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
-        <!-- Task Title Row -->
+        <!-- Task Title Row with Icon -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:text="📋"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:layout_marginEnd="10dp" />
 
             <TextView
                 android:id="@+id/tvTaskTitle"
@@ -29,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Task Title"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:maxLines="2"
@@ -42,19 +50,22 @@
             android:id="@+id/tvTaskDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginStart="34dp"
+            android:layout_marginBottom="12dp"
             android:text="Task Description"
             android:textSize="13sp"
             android:textColor="@color/text_secondary"
-            android:maxLines="2"
-            android:ellipsize="end" />
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:lineSpacingExtra="2dp" />
 
         <!-- Bottom Row: Priority, Status, Assigned -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
 
             <!-- Priority Badge -->
             <TextView
@@ -62,16 +73,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HIGH"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
                 android:background="@drawable/badge_background"
                 android:backgroundTint="@color/priority_high"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:layout_marginEnd="6dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginEnd="8dp" />
 
             <!-- Status Badge -->
             <TextView
@@ -79,16 +90,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TODO"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
                 android:background="@drawable/badge_background"
                 android:backgroundTint="@color/status_todo"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:layout_marginEnd="6dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginEnd="8dp" />
 
             <View
                 android:layout_width="0dp"
@@ -103,17 +114,24 @@
                 android:gravity="center_vertical"
                 android:background="@drawable/badge_background"
                 android:backgroundTint="@color/primary_light"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp">
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👤"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="4dp" />
 
                 <TextView
                     android:id="@+id/tvTaskAssignedTo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="👤 Chưa giao"
-                    android:textSize="10sp"
+                    android:text="Chưa giao"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
                     android:maxLines="1"

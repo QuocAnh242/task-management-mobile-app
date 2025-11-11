@@ -245,9 +245,15 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
         for (Map<String, String> user : usersForAssignment) {
             String userName = user.get("name");
-            if (userName == null) userName = user.get("email");
-            userNames.add(userName);
-            userIdMap.put(userName, user.get("id"));
+            if (userName == null || userName.isEmpty()) {
+                userName = user.get("email");
+            }
+            // Only add if we have a valid name/email
+            if (userName != null && !userName.isEmpty()) {
+                userNames.add(userName);
+                String userId = user.get("id");
+                userIdMap.put(userName, userId != null ? userId : "");
+            }
         }
 
         ArrayAdapter<String> assignAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userNames);
@@ -388,15 +394,38 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
         
         btnAddComment.setOnClickListener(v -> {
             String commentText = etComment.getText().toString().trim();
+            
+            // Clear previous errors
+            tilComment.setError(null);
+            tilComment.setErrorEnabled(false);
+            
+            // Validate input
             if (commentText.isEmpty()) {
-                showError("Comment cannot be empty");
+                tilComment.setError("Comment cannot be empty");
+                tilComment.setErrorEnabled(true);
+                etComment.requestFocus();
                 return;
             }
+            
+            if (commentText.length() > 1000) {
+                tilComment.setError("Comment is too long (max 1000 characters)");
+                tilComment.setErrorEnabled(true);
+                etComment.requestFocus();
+                return;
+            }
+
+            // Disable button to prevent duplicate submissions
+            btnAddComment.setEnabled(false);
+            btnAddComment.setText("Adding...");
 
             commentRepository.createComment(task.getTaskId(), commentText, new CommentRepository.OnCommentCreatedListener() {
                 @Override
                 public void onSuccess() {
                     etComment.setText("");
+                    tilComment.setError(null);
+                    tilComment.setErrorEnabled(false);
+                    btnAddComment.setEnabled(true);
+                    btnAddComment.setText("Add Comment");
                     showSuccess("Comment added");
                     // Reload comments
                     reloadComments(task.getTaskId(), commentAdapter, tvNoComments, rvComments);
@@ -404,6 +433,10 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
                 @Override
                 public void onError(String message) {
+                    tilComment.setError(message);
+                    tilComment.setErrorEnabled(true);
+                    btnAddComment.setEnabled(true);
+                    btnAddComment.setText("Add Comment");
                     showError(message);
                 }
             });
@@ -431,23 +464,44 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
     }
     
     private void reloadComments(String taskId, CommentAdapter adapter, TextView tvNoComments, RecyclerView rvComments) {
+        if (taskId == null || taskId.isEmpty()) {
+            tvNoComments.setVisibility(View.VISIBLE);
+            rvComments.setVisibility(View.GONE);
+            return;
+        }
+        
         commentRepository.loadComments(taskId, new CommentRepository.OnCommentsLoadedListener() {
             @Override
             public void onSuccess(List<Comment> comments) {
-                adapter.updateComments(comments);
-                if (comments.isEmpty()) {
-                    tvNoComments.setVisibility(View.VISIBLE);
-                    rvComments.setVisibility(View.GONE);
-                } else {
-                    tvNoComments.setVisibility(View.GONE);
-                    rvComments.setVisibility(View.VISIBLE);
+                if (adapter != null) {
+                    adapter.updateComments(comments);
+                    if (comments == null || comments.isEmpty()) {
+                        if (tvNoComments != null) {
+                            tvNoComments.setVisibility(View.VISIBLE);
+                        }
+                        if (rvComments != null) {
+                            rvComments.setVisibility(View.GONE);
+                        }
+                    } else {
+                        if (tvNoComments != null) {
+                            tvNoComments.setVisibility(View.GONE);
+                        }
+                        if (rvComments != null) {
+                            rvComments.setVisibility(View.VISIBLE);
+                        }
+                    }
                 }
             }
 
             @Override
             public void onError(String message) {
-                tvNoComments.setVisibility(View.VISIBLE);
-                rvComments.setVisibility(View.GONE);
+                if (tvNoComments != null) {
+                    tvNoComments.setVisibility(View.VISIBLE);
+                    tvNoComments.setText("Error loading comments: " + message);
+                }
+                if (rvComments != null) {
+                    rvComments.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -474,9 +528,8 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
                         @Override
                         public void onSuccess() {
                             showSuccess("Comment updated");
-                            // Reload comments - we need to refresh the adapter
-                            // Since we don't have direct access to the views, we'll just show success
-                            // The user can close and reopen the dialog to see updated comments
+                            // Note: Comments will be reloaded when dialog is reopened
+                            // For better UX, you could use a callback to refresh the dialog
                         }
 
                         @Override
@@ -570,9 +623,15 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
         for (Map<String, String> user : usersForAssignment) {
             String userName = user.get("name");
-            if (userName == null) userName = user.get("email");
-            userNames.add(userName);
-            userIdMap.put(userName, user.get("id"));
+            if (userName == null || userName.isEmpty()) {
+                userName = user.get("email");
+            }
+            // Only add if we have a valid name/email
+            if (userName != null && !userName.isEmpty()) {
+                userNames.add(userName);
+                String userId = user.get("id");
+                userIdMap.put(userName, userId != null ? userId : "");
+            }
         }
 
         ArrayAdapter<String> assignAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userNames);
@@ -642,9 +701,15 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
         for (Map<String, String> user : usersForAssignment) {
             String userName = user.get("name");
-            if (userName == null) userName = user.get("email");
-            userNames.add(userName);
-            userIdMap.put(userName, user.get("id"));
+            if (userName == null || userName.isEmpty()) {
+                userName = user.get("email");
+            }
+            // Only add if we have a valid name/email
+            if (userName != null && !userName.isEmpty()) {
+                userNames.add(userName);
+                String userId = user.get("id");
+                userIdMap.put(userName, userId != null ? userId : "");
+            }
         }
 
         String[] userArray = userNames.toArray(new String[0]);

@@ -4,71 +4,103 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="#F5F5F5">
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@color/background_card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="horizontal"
+        android:padding="14dp">
 
+        <!-- Avatar/Icon -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="6dp">
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/badge_background"
+            android:backgroundTint="@color/primary_light"
+            android:gravity="center"
+            android:layout_marginEnd="12dp">
 
             <TextView
-                android:id="@+id/tvCommentAuthor"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="User Name"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <TextView
-                android:id="@+id/tvCommentTime"
+                android:id="@+id/tvCommentAvatar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2h ago"
-                android:textSize="11sp"
-                android:textColor="@color/text_hint"
-                android:layout_marginEnd="8dp" />
-
-            <ImageButton
-                android:id="@+id/btnEditComment"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_menu_edit"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Edit comment"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/btnDeleteComment"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_menu_delete"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Delete comment"
-                android:visibility="gone" />
+                android:text="👤"
+                android:textSize="20sp" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvCommentContent"
-            android:layout_width="match_parent"
+        <!-- Comment Content -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Comment content goes here"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
-            android:lineSpacingExtra="2dp" />
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Author and Time Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:id="@+id/tvCommentAuthor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="User Name"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/tvCommentTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2h ago"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_hint"
+                    android:layout_marginEnd="8dp" />
+
+                <ImageButton
+                    android:id="@+id/btnEditComment"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit comment"
+                    android:visibility="gone"
+                    android:tint="@color/text_secondary" />
+
+                <ImageButton
+                    android:id="@+id/btnDeleteComment"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_delete"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Delete comment"
+                    android:visibility="gone"
+                    android:tint="@color/status_done" />
+
+            </LinearLayout>
+
+            <!-- Comment Content -->
+            <TextView
+                android:id="@+id/tvCommentContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Comment content goes here"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:lineSpacingExtra="4dp"
+                android:autoLink="web" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

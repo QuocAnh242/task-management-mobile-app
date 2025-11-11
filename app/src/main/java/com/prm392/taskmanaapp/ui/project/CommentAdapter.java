@@ -1,5 +1,12 @@
 package com.prm392.taskmanaapp.ui.project;
 
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +23,14 @@ import com.prm392.taskmanaapp.data.Comment;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
@@ -55,11 +67,21 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         
         // Format content to highlight @mentions
         String content = comment.getContent();
-        if (content != null) {
-            // Highlight @mentions with SpannableString (simplified - just show text for now)
-            holder.tvContent.setText(content);
+        if (content != null && !content.isEmpty()) {
+            SpannableString spannable = highlightMentions(content);
+            holder.tvContent.setText(spannable);
+            holder.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
             holder.tvContent.setText("");
+        }
+        
+        // Set avatar initial (first letter of name)
+        String authorName = comment.getUserName();
+        if (authorName != null && !authorName.isEmpty()) {
+            String initial = authorName.substring(0, 1).toUpperCase();
+            holder.tvAvatar.setText(initial);
+        } else {
+            holder.tvAvatar.setText("👤");
         }
         
         holder.tvTime.setText(formatTime(comment.getCreatedAt()));
@@ -95,7 +117,25 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     public void updateComments(List<Comment> comments) {
-        this.comments = comments;
+        if (comments == null) {
+            this.comments = new ArrayList<>();
+        } else {
+            // Remove duplicates based on commentId
+            Map<String, Comment> uniqueComments = new HashMap<>();
+            for (Comment comment : comments) {
+                if (comment != null && comment.getCommentId() != null) {
+                    uniqueComments.put(comment.getCommentId(), comment);
+                }
+            }
+            this.comments = new ArrayList<>(uniqueComments.values());
+            // Sort by createdAt
+            this.comments.sort((c1, c2) -> {
+                if (c1.getCreatedAt() == null && c2.getCreatedAt() == null) return 0;
+                if (c1.getCreatedAt() == null) return 1;
+                if (c2.getCreatedAt() == null) return -1;
+                return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+            });
+        }
         notifyDataSetChanged();
     }
 
@@ -128,10 +168,48 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         }
     }
 
+    /**
+     * Highlight @mentions in comment text
+     */
+    private SpannableString highlightMentions(String text) {
+        SpannableString spannable = new SpannableString(text);
+        
+        // Pattern to match @username or @email
+        Pattern mentionPattern = Pattern.compile("@(\\w+|[\\w.-]+@[\\w.-]+\\.[\\w]+)");
+        Matcher matcher = mentionPattern.matcher(text);
+        
+        while (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            
+            // Highlight mention with primary color
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.parseColor("#2196F3"));
+            spannable.setSpan(colorSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            // Make it clickable (you can add click listener here if needed)
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    // Handle mention click if needed
+                }
+                
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                }
+            };
+            spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        
+        return spannable;
+    }
+
     class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView tvAuthor;
         TextView tvContent;
         TextView tvTime;
+        TextView tvAvatar;
         ImageButton btnEdit;
         ImageButton btnDelete;
 
@@ -140,6 +218,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             tvAuthor = itemView.findViewById(R.id.tvCommentAuthor);
             tvContent = itemView.findViewById(R.id.tvCommentContent);
             tvTime = itemView.findViewById(R.id.tvCommentTime);
+            tvAvatar = itemView.findViewById(R.id.tvCommentAvatar);
             btnEdit = itemView.findViewById(R.id.btnEditComment);
             btnDelete = itemView.findViewById(R.id.btnDeleteComment);
         }
