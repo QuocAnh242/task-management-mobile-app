@@ -25,6 +25,7 @@
 
         <!-- Các Activity khác -->
         <activity android:name=".ui.home.HomeActivity" />
+        <activity android:name=".ui.admin.AdminActivity" />
         <activity android:name=".ui.register.RegisterActivity" />
         <activity android:name=".ui.project.ProjectActivity" />
         <activity android:name=".ui.project.ProjectManagementActivity" />

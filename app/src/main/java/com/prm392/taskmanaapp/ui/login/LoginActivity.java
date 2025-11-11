@@ -22,8 +22,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.prm392.taskmanaapp.R;
 import com.prm392.taskmanaapp.ui.home.HomeActivity;
+import com.prm392.taskmanaapp.ui.admin.AdminActivity;
 import com.prm392.taskmanaapp.ui.register.RegisterActivity;
+import com.prm392.taskmanaapp.utils.AdminAccountCreator;
 import com.prm392.taskmanaapp.utils.ValidationUtils;
+import com.prm392.taskmanaapp.utils.UserRoleHelper;
 
 public class LoginActivity extends AppCompatActivity implements LoginContract.View {
 
@@ -69,6 +72,9 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         // Create the Presenter, passing it a reference to this View
         presenter = new LoginPresenter(this);
 
+        // Create admin account automatically on app start (only once)
+        createAdminAccountOnStart();
+
         // Email/Password login button
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
@@ -101,6 +107,66 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
         });
+
+        // Long press on email field to create admin account (for development)
+        etEmail.setOnLongClickListener(v -> {
+            createAdminAccount();
+            return true;
+        });
+    }
+
+    private void createAdminAccountOnStart() {
+        // Create admin account automatically when app starts
+        AdminAccountCreator.createAdminAccount(
+                "anhthq@metadatasolutions.vn",
+                "admin123",
+                "Admin User",
+                new AdminAccountCreator.OnAdminAccountCreatedListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Admin account created/updated successfully on app start");
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        // Account might already exist, which is fine
+                        Log.d(TAG, "Admin account creation on start: " + message);
+                    }
+                }
+        );
+    }
+
+    private void createAdminAccount() {
+        String email = etEmail.getText().toString().trim();
+        if (email.isEmpty()) {
+            email = "anhthq@metadatasolutions.vn";
+        }
+        
+        showLoading();
+        AdminAccountCreator.createAdminAccount(
+                email,
+                "admin123",
+                "Admin User",
+                new AdminAccountCreator.OnAdminAccountCreatedListener() {
+                    @Override
+                    public void onSuccess() {
+                        hideLoading();
+                        Toast.makeText(LoginActivity.this, "Admin account created/updated successfully! Password: admin123", Toast.LENGTH_LONG).show();
+                        etPassword.setText("admin123");
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        hideLoading();
+                        if (message.contains("already exists") || message.contains("updated")) {
+                            Toast.makeText(LoginActivity.this, "Admin account ready! Password: admin123", Toast.LENGTH_LONG).show();
+                            etPassword.setText("admin123");
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error: " + message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        );
     }
 
     // --- Implementation of LoginContract.View methods ---
@@ -130,9 +196,28 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
 
     @Override
     public void navigateToHome() {
-        Intent intent = new Intent(this, HomeActivity.class);
-        startActivity(intent);
-        finish(); // Prevent user from going back to login screen
+        // Check user role and navigate accordingly
+        UserRoleHelper.getCurrentUserRole(new UserRoleHelper.OnRoleLoadedListener() {
+            @Override
+            public void onRoleLoaded(String role) {
+                Intent intent;
+                if ("ADMIN".equals(role)) {
+                    intent = new Intent(LoginActivity.this, AdminActivity.class);
+                } else {
+                    intent = new Intent(LoginActivity.this, HomeActivity.class);
+                }
+                startActivity(intent);
+                finish(); // Prevent user from going back to login screen
+            }
+
+            @Override
+            public void onError(String message) {
+                // Default to HomeActivity if role check fails
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     @Override
