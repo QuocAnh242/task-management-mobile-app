@@ -347,10 +347,12 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
 
         // Setup comments RecyclerView
         CommentAdapter commentAdapter = new CommentAdapter(new ArrayList<>());
-        rvComments.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(false);
+        rvComments.setLayoutManager(layoutManager);
         rvComments.setAdapter(commentAdapter);
         
-        // Setup comment action listeners
+        // Setup comment action listeners (only once)
         commentAdapter.setActionListener(new CommentAdapter.OnCommentActionListener() {
             @Override
             public void onEditComment(Comment comment) {
@@ -392,7 +394,15 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
         // Setup @ mention support
         setupMentionSupport(etComment, task);
         
+        // Store reference to prevent multiple listeners
+        final boolean[] isSubmitting = {false};
+        
         btnAddComment.setOnClickListener(v -> {
+            // Prevent duplicate clicks
+            if (isSubmitting[0]) {
+                return;
+            }
+            
             String commentText = etComment.getText().toString().trim();
             
             // Clear previous errors
@@ -415,6 +425,7 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
             }
 
             // Disable button to prevent duplicate submissions
+            isSubmitting[0] = true;
             btnAddComment.setEnabled(false);
             btnAddComment.setText("Adding...");
 
@@ -424,17 +435,21 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
                     etComment.setText("");
                     tilComment.setError(null);
                     tilComment.setErrorEnabled(false);
+                    isSubmitting[0] = false;
                     btnAddComment.setEnabled(true);
                     btnAddComment.setText("Add Comment");
                     showSuccess("Comment added");
-                    // Reload comments
-                    reloadComments(task.getTaskId(), commentAdapter, tvNoComments, rvComments);
+                    // Reload comments after a short delay to ensure data is saved
+                    rvComments.postDelayed(() -> {
+                        reloadComments(task.getTaskId(), commentAdapter, tvNoComments, rvComments);
+                    }, 500);
                 }
 
                 @Override
                 public void onError(String message) {
                     tilComment.setError(message);
                     tilComment.setErrorEnabled(true);
+                    isSubmitting[0] = false;
                     btnAddComment.setEnabled(true);
                     btnAddComment.setText("Add Comment");
                     showError(message);
@@ -465,8 +480,17 @@ public class ProjectActivity extends AppCompatActivity implements TaskContract.V
     
     private void reloadComments(String taskId, CommentAdapter adapter, TextView tvNoComments, RecyclerView rvComments) {
         if (taskId == null || taskId.isEmpty()) {
-            tvNoComments.setVisibility(View.VISIBLE);
-            rvComments.setVisibility(View.GONE);
+            if (tvNoComments != null) {
+                tvNoComments.setVisibility(View.VISIBLE);
+            }
+            if (rvComments != null) {
+                rvComments.setVisibility(View.GONE);
+            }
+            return;
+        }
+        
+        // Prevent multiple simultaneous loads
+        if (adapter == null) {
             return;
         }
         

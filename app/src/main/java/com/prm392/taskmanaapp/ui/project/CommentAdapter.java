@@ -117,25 +117,39 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     public void updateComments(List<Comment> comments) {
-        if (comments == null) {
+        // Always clear first to prevent duplicates
+        if (this.comments == null) {
             this.comments = new ArrayList<>();
         } else {
-            // Remove duplicates based on commentId
-            Map<String, Comment> uniqueComments = new HashMap<>();
-            for (Comment comment : comments) {
-                if (comment != null && comment.getCommentId() != null) {
+            this.comments.clear();
+        }
+        
+        if (comments == null || comments.isEmpty()) {
+            notifyDataSetChanged();
+            return;
+        }
+        
+        // Remove duplicates based on commentId using LinkedHashMap to preserve order
+        Map<String, Comment> uniqueComments = new HashMap<>();
+        for (Comment comment : comments) {
+            if (comment != null && comment.getCommentId() != null && !comment.getCommentId().isEmpty()) {
+                // Only keep the first occurrence if duplicate
+                if (!uniqueComments.containsKey(comment.getCommentId())) {
                     uniqueComments.put(comment.getCommentId(), comment);
                 }
             }
-            this.comments = new ArrayList<>(uniqueComments.values());
-            // Sort by createdAt
-            this.comments.sort((c1, c2) -> {
-                if (c1.getCreatedAt() == null && c2.getCreatedAt() == null) return 0;
-                if (c1.getCreatedAt() == null) return 1;
-                if (c2.getCreatedAt() == null) return -1;
-                return c1.getCreatedAt().compareTo(c2.getCreatedAt());
-            });
         }
+        
+        this.comments.addAll(uniqueComments.values());
+        
+        // Sort by createdAt
+        this.comments.sort((c1, c2) -> {
+            if (c1.getCreatedAt() == null && c2.getCreatedAt() == null) return 0;
+            if (c1.getCreatedAt() == null) return 1;
+            if (c2.getCreatedAt() == null) return -1;
+            return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+        });
+        
         notifyDataSetChanged();
     }
 

@@ -45,16 +45,33 @@ public class CommentRepository {
     }
 
     public void loadComments(String taskId, OnCommentsLoadedListener listener) {
+        if (taskId == null || taskId.isEmpty()) {
+            listener.onError("Task ID is required");
+            return;
+        }
+        
         db.collection("comments")
                 .whereEqualTo("taskId", taskId)
                 .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Comment> comments = new ArrayList<>();
+                    // Use Set to remove duplicates by commentId
+                    Map<String, Comment> uniqueComments = new HashMap<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Comment comment = documentToComment(doc);
-                        comments.add(comment);
+                        if (comment != null && comment.getCommentId() != null) {
+                            uniqueComments.put(comment.getCommentId(), comment);
+                        }
                     }
+                    
+                    List<Comment> comments = new ArrayList<>(uniqueComments.values());
+                    // Sort by createdAt
+                    comments.sort((c1, c2) -> {
+                        if (c1.getCreatedAt() == null && c2.getCreatedAt() == null) return 0;
+                        if (c1.getCreatedAt() == null) return 1;
+                        if (c2.getCreatedAt() == null) return -1;
+                        return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+                    });
                     listener.onSuccess(comments);
                 })
                 .addOnFailureListener(e -> {
@@ -63,11 +80,16 @@ public class CommentRepository {
                             .whereEqualTo("taskId", taskId)
                             .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
-                                List<Comment> comments = new ArrayList<>();
+                                // Use Set to remove duplicates by commentId
+                                Map<String, Comment> uniqueComments = new HashMap<>();
                                 for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                                     Comment comment = documentToComment(doc);
-                                    comments.add(comment);
+                                    if (comment != null && comment.getCommentId() != null) {
+                                        uniqueComments.put(comment.getCommentId(), comment);
+                                    }
                                 }
+                                
+                                List<Comment> comments = new ArrayList<>(uniqueComments.values());
                                 // Sort in memory
                                 comments.sort((c1, c2) -> {
                                     if (c1.getCreatedAt() == null && c2.getCreatedAt() == null) return 0;
