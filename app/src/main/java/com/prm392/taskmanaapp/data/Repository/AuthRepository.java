@@ -1,7 +1,9 @@
 package com.prm392.taskmanaapp.data.Repository;
 
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -112,6 +114,55 @@ public class AuthRepository {
                             } else {
                                 errorMessage = error;
                             }
+                        }
+                        listener.onError(errorMessage);
+                    }
+                });
+    }
+
+    public void loginWithGoogle(String idToken, OnLoginFinishedListener listener) {
+        if (idToken == null || idToken.isEmpty()) {
+            listener.onError("Invalid Google ID token");
+            return;
+        }
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // Check if user exists in Firestore, if not create profile
+                            db.collection("users")
+                                    .document(user.getUid())
+                                    .get()
+                                    .addOnSuccessListener(documentSnapshot -> {
+                                        if (!documentSnapshot.exists()) {
+                                            // Create new user profile for Google Sign-In user
+                                            Map<String, Object> userData = new HashMap<>();
+                                            userData.put("name", user.getDisplayName() != null ? user.getDisplayName() : "Google User");
+                                            userData.put("email", user.getEmail());
+                                            userData.put("role", "MEMBER"); // Default role
+                                            userData.put("avatar", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "");
+
+                                            db.collection("users")
+                                                    .document(user.getUid())
+                                                    .set(userData)
+                                                    .addOnSuccessListener(aVoid -> listener.onSuccess())
+                                                    .addOnFailureListener(e -> listener.onError("Login successful but failed to create profile: " + e.getMessage()));
+                                        } else {
+                                            // User already exists
+                                            listener.onSuccess();
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> listener.onError("Login successful but failed to verify user: " + e.getMessage()));
+                        } else {
+                            listener.onSuccess();
+                        }
+                    } else {
+                        String errorMessage = "Google Sign-In failed";
+                        if (task.getException() != null) {
+                            errorMessage = task.getException().getMessage();
                         }
                         listener.onError(errorMessage);
                     }

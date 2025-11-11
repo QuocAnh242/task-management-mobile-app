@@ -52,6 +52,9 @@ dependencies {
     // Optional (for analytics / debugging)
     implementation("com.google.firebase:firebase-analytics")
 
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
     // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
